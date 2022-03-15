@@ -2,6 +2,7 @@ import React from "react";
 
 export default function UserForm(props: {
   formFields: Array<{ id: number; label: string; inputType: string }>;
+  closeForm: () => void;
 }) {
   return (
     <form>
@@ -14,12 +15,20 @@ export default function UserForm(props: {
           />
         </React.Fragment>
       ))}
-      <button
-        type="submit"
-        className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-      >
-        Submit
-      </button>
+      <div className="flex space-x-2">
+        <button
+          type="submit"
+          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Submit
+        </button>
+        <button
+          onClick={props.closeForm}
+          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Close Form
+        </button>
+      </div>
     </form>
   );
 }
