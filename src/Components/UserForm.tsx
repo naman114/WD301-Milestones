@@ -2,7 +2,7 @@ import React from "react";
 
 export default function UserForm(props: {
   formFields: Array<{ id: number; label: string; inputType: string }>;
-  closeForm: () => void;
+  closeFormCB: () => void;
 }) {
   return (
     <form>
@@ -23,7 +23,7 @@ export default function UserForm(props: {
           Submit
         </button>
         <button
-          onClick={props.closeForm}
+          onClick={props.closeFormCB}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Close Form

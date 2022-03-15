@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import AppContainer from "./AppContainer";
-import Header from "./Header";
-import UserForm from "./UserForm";
+import Header from "./Components/Header";
+import UserForm from "./Components/UserForm";
 import Home from "./Components/Home";
 
 const formFields = [
@@ -30,17 +30,9 @@ function App() {
           title={"Welcome to Lesson 5 of $react-typescript with #tailwindcss"}
         />
         {state === "HOME" ? (
-          <>
-            <Home />
-            <button
-              className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 "
-              onClick={openForm}
-            >
-              Open Form
-            </button>
-          </>
+          <Home openFormCB={openForm} />
         ) : (
-          <UserForm formFields={formFields} closeForm={closeForm} />
+          <UserForm formFields={formFields} closeFormCB={closeForm} />
         )}
       </div>
     </AppContainer>
