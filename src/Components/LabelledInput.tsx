@@ -3,8 +3,10 @@ import React from "react";
 export default function LabelledInput(props: {
   id: number;
   label: string;
+  value: string;
   fieldType: string;
   removeFieldCB: (id: number) => void;
+  updateInputFieldValueCB: (id: number, value: string) => void;
 }) {
   return (
     <>
@@ -12,6 +14,10 @@ export default function LabelledInput(props: {
       <div className="flex gap-2">
         <input
           type={props.fieldType}
+          value={props.value}
+          onChange={(e) => {
+            props.updateInputFieldValueCB(props.id, e.target.value);
+          }}
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
         />
         <button

@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import LabelledInput from "./LabelledInput";
 
 const formFields = [
-  { id: 1, label: "First Name", fieldType: "text" },
-  { id: 2, label: "Last Name", fieldType: "text" },
-  { id: 3, label: "Email", fieldType: "email" },
-  { id: 4, label: "Date of Birth", fieldType: "date" },
-  { id: 5, label: "Phone Number", fieldType: "tel" },
+  { id: 1, label: "First Name", fieldType: "text", value: "" },
+  { id: 2, label: "Last Name", fieldType: "text", value: "" },
+  { id: 3, label: "Email", fieldType: "email", value: "" },
+  { id: 4, label: "Date of Birth", fieldType: "date", value: "" },
+  { id: 5, label: "Phone Number", fieldType: "text", value: "" },
 ];
 
 export default function UserForm(props: { closeFormCB: () => void }) {
@@ -16,9 +16,9 @@ export default function UserForm(props: { closeFormCB: () => void }) {
   const addField = () => {
     setState([
       ...state,
-      { id: Number(new Date()), label: newField, fieldType: "text" },
+      { id: Number(new Date()), label: newField, fieldType: "text", value: "" },
     ]);
-    // Input value after adding a new field
+    // Reset the input's value after adding a new field
     setNewField("");
   };
 
@@ -26,8 +26,26 @@ export default function UserForm(props: { closeFormCB: () => void }) {
     setState(state.filter((field) => field.id !== id));
   };
 
+  const updateInputFieldValue = (id: number, value: string) => {
+    const newState = [...state];
+    const stateObjectIndex = state.findIndex((field) => field.id === id);
+    newState[stateObjectIndex] = { ...newState[stateObjectIndex], value };
+    setState(newState);
+  };
+
+  const resetForm = () => {
+    setState(
+      state.map((field) => {
+        return {
+          ...field,
+          value: "",
+        };
+      })
+    );
+  };
+
   return (
-    <form className="flex flex-col gap-4 divide-y-2 divide-dotted">
+    <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
       <div>
         {state.map((field) => (
           <React.Fragment key={field.id}>
@@ -35,7 +53,9 @@ export default function UserForm(props: { closeFormCB: () => void }) {
               id={field.id}
               label={field.label}
               fieldType={field.fieldType}
+              value={field.value}
               removeFieldCB={removeField}
+              updateInputFieldValueCB={updateInputFieldValue}
             />
           </React.Fragment>
         ))}
@@ -50,7 +70,6 @@ export default function UserForm(props: { closeFormCB: () => void }) {
           value={newField}
         />
         <button
-          type="button"
           onClick={addField}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
@@ -65,12 +84,18 @@ export default function UserForm(props: { closeFormCB: () => void }) {
           Submit
         </button>
         <button
+          onClick={resetForm}
+          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Reset
+        </button>
+        <button
           onClick={props.closeFormCB}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Close Form
         </button>
       </div>
-    </form>
+    </div>
   );
 }
