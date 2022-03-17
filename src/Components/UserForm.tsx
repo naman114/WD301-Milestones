@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import LabelledInput from "./LabelledInput";
 
+interface FormData {
+  title: string;
+  formFields: formField[];
+}
+
 interface formField {
   id: number;
   label: string;
@@ -16,15 +21,15 @@ const initialFormFields: formField[] = [
   { id: 5, label: "Phone Number", fieldType: "text", value: "" },
 ];
 
-const saveFormData = (currentState: formField[]) => {
-  localStorage.setItem("formFields", JSON.stringify(currentState));
+const saveFormData = (currentState: FormData) => {
+  localStorage.setItem("formData", JSON.stringify(currentState));
 };
 
-const initialState = (): formField[] => {
-  const formFieldsJSON = localStorage.getItem("formFields");
+const initialState = (): FormData => {
+  const formFieldsJSON = localStorage.getItem("formData");
   const persistentFormFields = formFieldsJSON
     ? JSON.parse(formFieldsJSON)
-    : initialFormFields;
+    : { title: "Untitled Form", formFields: initialFormFields };
   return persistentFormFields;
 };
 
@@ -53,40 +58,71 @@ export default function UserForm(props: { closeFormCB: () => void }) {
   }, [state]);
 
   const addField = () => {
-    setState([
+    setState({
       ...state,
-      { id: Number(new Date()), label: newField, fieldType: "text", value: "" },
-    ]);
+      formFields: [
+        ...state.formFields,
+        {
+          id: Number(new Date()),
+          label: newField,
+          fieldType: "text",
+          value: "",
+        },
+      ],
+    });
     // Reset the input's value after adding a new field
     setNewField("");
   };
 
   const removeField = (id: number) => {
-    setState(state.filter((field) => field.id !== id));
+    setState({
+      ...state,
+      formFields: state.formFields.filter((field) => field.id !== id),
+    });
   };
 
   const updateInputFieldValue = (id: number, value: string) => {
-    const newState = [...state];
-    const stateObjectIndex = state.findIndex((field) => field.id === id);
-    newState[stateObjectIndex] = { ...newState[stateObjectIndex], value };
-    setState(newState);
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.id === id) {
+          return {
+            ...field,
+            value,
+          };
+        }
+        return field;
+      }),
+    });
   };
 
   const resetForm = () => {
-    setState(
-      state.map((field) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
         return {
           ...field,
           value: "",
         };
-      })
-    );
+      }),
+    });
   };
 
   return (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
+      <input
+        type="text"
+        className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
+        onChange={(e) => {
+          setState({
+            ...state,
+            title: e.target.value,
+          });
+        }}
+        value={state.title}
+      />
       <div>
-        {state.map((field) => (
+        {state.formFields.map((field) => (
           <React.Fragment key={field.id}>
             <LabelledInput
               id={field.id}
