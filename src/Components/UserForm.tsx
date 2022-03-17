@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LabelledInput from "./LabelledInput";
 
 interface formField {
@@ -31,6 +31,26 @@ const initialState = (): formField[] => {
 export default function UserForm(props: { closeFormCB: () => void }) {
   const [state, setState] = useState(initialState());
   const [newField, setNewField] = useState("");
+
+  useEffect(() => {
+    console.log("Component is mounted");
+    document.title = "User Form";
+
+    return () => {
+      document.title = "React App";
+    };
+  }, []);
+
+  useEffect(() => {
+    let timeout = setTimeout(() => {
+      saveFormData(state);
+      console.log("saving to local storage");
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [state]);
 
   const addField = () => {
     setState([
