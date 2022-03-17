@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import LabelledInput from "./LabelledInput";
 
-const formFields = [
+interface formField {
+  id: number;
+  label: string;
+  fieldType: string;
+  value: string;
+}
+
+const initialFormFields: formField[] = [
   { id: 1, label: "First Name", fieldType: "text", value: "" },
   { id: 2, label: "Last Name", fieldType: "text", value: "" },
   { id: 3, label: "Email", fieldType: "email", value: "" },
@@ -9,8 +16,20 @@ const formFields = [
   { id: 5, label: "Phone Number", fieldType: "text", value: "" },
 ];
 
+const saveFormData = (currentState: formField[]) => {
+  localStorage.setItem("formFields", JSON.stringify(currentState));
+};
+
+const initialState = (): formField[] => {
+  const formFieldsJSON = localStorage.getItem("formFields");
+  const persistentFormFields = formFieldsJSON
+    ? JSON.parse(formFieldsJSON)
+    : initialFormFields;
+  return persistentFormFields;
+};
+
 export default function UserForm(props: { closeFormCB: () => void }) {
-  const [state, setState] = useState(formFields);
+  const [state, setState] = useState(initialState());
   const [newField, setNewField] = useState("");
 
   const addField = () => {
@@ -80,8 +99,9 @@ export default function UserForm(props: { closeFormCB: () => void }) {
         <button
           type="submit"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          onClick={(_) => saveFormData(state)}
         >
-          Submit
+          Save
         </button>
         <button
           onClick={resetForm}
