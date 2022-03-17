@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 
 interface FormData {
@@ -36,11 +36,12 @@ const initialState = (): FormData => {
 export default function UserForm(props: { closeFormCB: () => void }) {
   const [state, setState] = useState(initialState());
   const [newField, setNewField] = useState("");
+  const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     console.log("Component is mounted");
     document.title = "User Form";
-
+    titleRef.current?.focus();
     return () => {
       document.title = "React App";
     };
@@ -120,6 +121,7 @@ export default function UserForm(props: { closeFormCB: () => void }) {
           });
         }}
         value={state.title}
+        ref={titleRef}
       />
       <div>
         {state.formFields.map((field) => (
