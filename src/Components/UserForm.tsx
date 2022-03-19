@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 
 interface FormData {
+  id: number;
   title: string;
   formFields: formField[];
 }
@@ -21,20 +22,41 @@ const initialFormFields: formField[] = [
   { id: 5, label: "Phone Number", fieldType: "text", value: "" },
 ];
 
+const saveLocalForms = (localForms: FormData[]) => {
+  localStorage.setItem("savedForms", JSON.stringify(localForms));
+};
+
 const saveFormData = (currentState: FormData) => {
-  localStorage.setItem("formData", JSON.stringify(currentState));
+  const localForms = getLocalForms();
+  const updatedLocalForms = localForms.map((form) =>
+    form.id === currentState.id ? currentState : form
+  );
+  saveLocalForms(updatedLocalForms);
+};
+
+const getLocalForms = (): FormData[] => {
+  const savedFormsJSON = localStorage.getItem("savedForms");
+  return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
 };
 
 const initialState = (): FormData => {
-  const formFieldsJSON = localStorage.getItem("formData");
-  const persistentFormFields = formFieldsJSON
-    ? JSON.parse(formFieldsJSON)
-    : { title: "Untitled Form", formFields: initialFormFields };
-  return persistentFormFields;
+  const localForms = getLocalForms();
+
+  if (localForms.length > 0) return localForms[0];
+
+  const newForm = {
+    id: Number(new Date()),
+    title: "Untitled Form",
+    formFields: initialFormFields,
+  };
+
+  saveLocalForms([...localForms, newForm]);
+
+  return newForm;
 };
 
 export default function UserForm(props: { closeFormCB: () => void }) {
-  const [state, setState] = useState(initialState());
+  const [state, setState] = useState(() => initialState());
   const [newField, setNewField] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
 
