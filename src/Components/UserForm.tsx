@@ -1,62 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
+import { FormData } from "./FormList";
 
-interface FormData {
-  id: number;
-  title: string;
-  formFields: formField[];
-}
-
-interface formField {
-  id: number;
-  label: string;
-  fieldType: string;
-  value: string;
-}
-
-const initialFormFields: formField[] = [
-  { id: 1, label: "First Name", fieldType: "text", value: "" },
-  { id: 2, label: "Last Name", fieldType: "text", value: "" },
-  { id: 3, label: "Email", fieldType: "email", value: "" },
-  { id: 4, label: "Date of Birth", fieldType: "date", value: "" },
-  { id: 5, label: "Phone Number", fieldType: "text", value: "" },
-];
-
-const saveLocalForms = (localForms: FormData[]) => {
-  localStorage.setItem("savedForms", JSON.stringify(localForms));
-};
-
-const saveFormData = (currentState: FormData) => {
-  const localForms = getLocalForms();
-  const updatedLocalForms = localForms.map((form) =>
-    form.id === currentState.id ? currentState : form
-  );
-  saveLocalForms(updatedLocalForms);
-};
-
-const getLocalForms = (): FormData[] => {
-  const savedFormsJSON = localStorage.getItem("savedForms");
-  return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
-};
-
-const initialState = (): FormData => {
-  const localForms = getLocalForms();
-
-  if (localForms.length > 0) return localForms[0];
-
-  const newForm = {
-    id: Number(new Date()),
-    title: "Untitled Form",
-    formFields: initialFormFields,
-  };
-
-  saveLocalForms([...localForms, newForm]);
-
-  return newForm;
-};
-
-export default function UserForm(props: { closeFormCB: () => void }) {
-  const [state, setState] = useState(() => initialState());
+export default function UserForm(props: {
+  currentForm: FormData;
+  closeFormCB: () => void;
+  saveFormDataCB: (currentState: FormData) => void;
+}) {
+  const [state, setState] = useState(props.currentForm);
   const [newField, setNewField] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -71,7 +22,7 @@ export default function UserForm(props: { closeFormCB: () => void }) {
 
   useEffect(() => {
     let timeout = setTimeout(() => {
-      saveFormData(state);
+      props.saveFormDataCB(state);
       console.log("saving to local storage");
     }, 1000);
 
@@ -179,7 +130,7 @@ export default function UserForm(props: { closeFormCB: () => void }) {
         <button
           type="submit"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          onClick={(_) => saveFormData(state)}
+          onClick={(_) => props.saveFormDataCB(state)}
         >
           Save
         </button>
