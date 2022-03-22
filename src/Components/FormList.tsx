@@ -122,9 +122,7 @@ export default function FormList(props: { closeFormCB: () => void }) {
         </div>
       ) : (
         <UserForm
-          currentForm={
-            getLocalForms().filter((form) => form.id === currentFormId)[0]
-          }
+          currentForm={state.filter((form) => form.id === currentFormId)[0]}
           closeFormCB={openFormList}
           saveFormDataCB={saveFormData}
         />
