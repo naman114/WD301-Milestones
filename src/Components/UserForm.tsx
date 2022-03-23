@@ -32,6 +32,8 @@ export default function UserForm(props: {
   }, [state]);
 
   const addField = () => {
+    if (newField === "") return;
+
     setState({
       ...state,
       formFields: [
