@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useQueryParams } from "raviger";
 
 export interface FormData {
   id: number;
@@ -31,6 +32,8 @@ export const getLocalForms = (): FormData[] => {
 };
 
 export default function FormList() {
+  const [{ search }, setQueryParams] = useQueryParams();
+  const [searchString, setSerachString] = useState("");
   const [state, setState] = useState(() => getLocalForms());
 
   useEffect(() => {
@@ -54,30 +57,57 @@ export default function FormList() {
 
   return (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
+      <form
+        className="flex justify-center"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setQueryParams({ search: searchString });
+        }}
+      >
+        <input
+          className="mr-4 w-full rounded-2xl bg-slate-100 p-3 focus:outline-none"
+          type="text"
+          name="search"
+          placeholder="Enter string to search"
+          value={searchString}
+          onChange={(e) => {
+            setSerachString(e.target.value);
+          }}
+        />
+        <input
+          className="flex w-min justify-center rounded-md border-2 border-blue-500 px-2 py-1 hover:cursor-pointer"
+          type="submit"
+          value="Search"
+        />
+      </form>
       <div className="space-y-3">
-        {state.map((form) => (
-          <React.Fragment key={form.id}>
-            <div className="flex items-center justify-between rounded-xl border-2 px-4">
-              <p>{form.title}</p>
-              <div className="flex space-x-2">
-                <a
-                  type="button"
-                  href={`/forms/${form.id}`}
-                  className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                >
-                  Edit
-                </a>
-                <button
-                  type="button"
-                  className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  onClick={(_) => removeForm(form.id)}
-                >
-                  Delete
-                </button>
+        {state
+          .filter((form) =>
+            form.title.toLowerCase().includes(search?.toLowerCase() || "")
+          )
+          .map((form) => (
+            <React.Fragment key={form.id}>
+              <div className="flex items-center justify-between rounded-xl border-2 px-4">
+                <p>{form.title}</p>
+                <div className="flex space-x-2">
+                  <a
+                    type="button"
+                    href={`/forms/${form.id}`}
+                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  >
+                    Edit
+                  </a>
+                  <button
+                    type="button"
+                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    onClick={(_) => removeForm(form.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-            </div>
-          </React.Fragment>
-        ))}
+            </React.Fragment>
+          ))}
       </div>
       <div className="flex space-x-2">
         <button
