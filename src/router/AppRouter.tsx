@@ -1,11 +1,15 @@
 import { useRoutes } from "raviger";
-import App from "../App";
 import About from "../Components/About";
 import AppContainer from "../Components/AppContainer";
+import FormList from "../Components/FormList";
+import Home from "../Components/Home";
+import UserForm from "../Components/UserForm";
 
 const routes = {
-  "/": () => <App />,
+  "/": () => <Home />,
   "/about": () => <About />,
+  "/forms": () => <FormList />,
+  "/forms/:id": ({ id }: { id: string }) => <UserForm formId={Number(id)} />,
 };
 
 export default function AppRouter() {

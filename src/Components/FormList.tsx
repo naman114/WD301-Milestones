@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import UserForm from "./UserForm";
 
 export interface FormData {
   id: number;
@@ -22,19 +21,17 @@ const initialFormFields: formField[] = [
   { id: 5, label: "Phone Number", fieldType: "text", value: "" },
 ];
 
-const saveLocalForms = (localForms: FormData[]) => {
+export const saveLocalForms = (localForms: FormData[]) => {
   localStorage.setItem("savedForms", JSON.stringify(localForms));
 };
 
-const getLocalForms = (): FormData[] => {
+export const getLocalForms = (): FormData[] => {
   const savedFormsJSON = localStorage.getItem("savedForms");
   return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
 };
 
-export default function FormList(props: { closeFormCB: () => void }) {
+export default function FormList() {
   const [state, setState] = useState(() => getLocalForms());
-  const [display, setDisplay] = useState("FORMLIST");
-  const [currentFormId, setCurrentFormId] = useState(0);
 
   useEffect(() => {
     saveLocalForms(state);
@@ -55,78 +52,48 @@ export default function FormList(props: { closeFormCB: () => void }) {
     setState(state.filter((form) => form.id !== id));
   };
 
-  const openFormList = () => {
-    setDisplay("FORMLIST");
-  };
-  const closeFormList = () => {
-    setDisplay("FORM");
-  };
-
-  const handleEditForm = (id: number) => {
-    setCurrentFormId(id);
-  };
-
-  const saveFormData = (currentState: FormData) => {
-    setState(
-      state.map((form) => (form.id === currentState.id ? currentState : form))
-    );
-  };
-
   return (
-    <div>
-      {display === "FORMLIST" ? (
-        <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
-          <div className="space-y-3">
-            {state.map((form) => (
-              <React.Fragment key={form.id}>
-                <div className="flex items-center justify-between rounded-xl border-2 px-4">
-                  <p>{form.title}</p>
-                  <div className="flex space-x-2">
-                    <button
-                      type="button"
-                      className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                      onClick={(_) => {
-                        handleEditForm(form.id);
-                        closeFormList();
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                      onClick={(_) => removeForm(form.id)}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </React.Fragment>
-            ))}
-          </div>
-          <div className="flex space-x-2">
-            <button
-              type="button"
-              className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              onClick={addForm}
-            >
-              Add New Form
-            </button>
-            <button
-              className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              onClick={props.closeFormCB}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      ) : (
-        <UserForm
-          currentForm={state.filter((form) => form.id === currentFormId)[0]}
-          closeFormCB={openFormList}
-          saveFormDataCB={saveFormData}
-        />
-      )}
+    <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
+      <div className="space-y-3">
+        {state.map((form) => (
+          <React.Fragment key={form.id}>
+            <div className="flex items-center justify-between rounded-xl border-2 px-4">
+              <p>{form.title}</p>
+              <div className="flex space-x-2">
+                <a
+                  type="button"
+                  href={`/forms/${form.id}`}
+                  className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                >
+                  Edit
+                </a>
+                <button
+                  type="button"
+                  className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  onClick={(_) => removeForm(form.id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+      <div className="flex space-x-2">
+        <button
+          type="button"
+          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          onClick={addForm}
+        >
+          Add New Form
+        </button>
+        <a
+          href="/"
+          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          Close
+        </a>
+      </div>
     </div>
   );
 }

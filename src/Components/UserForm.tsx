@@ -1,13 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import { FormData } from "./FormList";
+import { FormData, saveLocalForms, getLocalForms } from "./FormList";
 
-export default function UserForm(props: {
-  currentForm: FormData;
-  closeFormCB: () => void;
-  saveFormDataCB: (currentState: FormData) => void;
-}) {
-  const [state, setState] = useState(props.currentForm);
+const initialState = (formId: number): FormData => {
+  const savedForms = getLocalForms();
+  return savedForms.filter((form) => form.id === formId)[0];
+};
+
+const saveCurrentForm = (currentForm: FormData) => {
+  const savedForms = getLocalForms();
+  const updatedForms = savedForms.map((form) => {
+    if (form.id === currentForm.id) return currentForm;
+    return form;
+  });
+  saveLocalForms(updatedForms);
+};
+
+export default function UserForm(props: { formId: number }) {
+  const [state, setState] = useState(() => initialState(props.formId));
   const [newField, setNewField] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -22,7 +32,7 @@ export default function UserForm(props: {
 
   useEffect(() => {
     let timeout = setTimeout(() => {
-      props.saveFormDataCB(state);
+      saveCurrentForm(state);
       console.log("saving to local storage");
     }, 1000);
 
@@ -132,7 +142,7 @@ export default function UserForm(props: {
         <button
           type="submit"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          onClick={(_) => props.saveFormDataCB(state)}
+          onClick={(_) => saveCurrentForm(state)}
         >
           Save
         </button>
@@ -142,12 +152,12 @@ export default function UserForm(props: {
         >
           Reset
         </button>
-        <button
-          onClick={props.closeFormCB}
+        <a
+          href="/forms/"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Close Form
-        </button>
+        </a>
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ export default function Header(props: { title: string }) {
         alt="logo"
         style={{ animation: "spin 2s linear infinite" }}
       />
-      {/* <h1 className="flex-1 text-center text-xl">{props.title}</h1> */}
       <div className="flex items-center gap-2">
         {[
           { page: "Home", url: "/" },
