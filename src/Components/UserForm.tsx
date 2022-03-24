@@ -1,8 +1,31 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import { FormData, saveLocalForms, getLocalForms } from "./FormList";
+import { FormData, formField, saveLocalForms, getLocalForms } from "./FormList";
+import { navigate } from "raviger";
+
+const initialFormFields: formField[] = [
+  { id: 1, label: "First Name", fieldType: "text", value: "" },
+  { id: 2, label: "Last Name", fieldType: "text", value: "" },
+  { id: 3, label: "Email", fieldType: "email", value: "" },
+  { id: 4, label: "Date of Birth", fieldType: "date", value: "" },
+  { id: 5, label: "Phone Number", fieldType: "text", value: "" },
+];
 
 const initialState = (formId: number): FormData => {
+  if (formId === 0) {
+    const newForm = {
+      id: Number(new Date()),
+      title: "Untitled Form",
+      formFields: initialFormFields,
+    };
+
+    // Save newly added form to local storage
+    const savedForms = getLocalForms();
+    saveLocalForms([...savedForms, newForm]);
+
+    return newForm;
+  }
+
   const savedForms = getLocalForms();
   return savedForms.filter((form) => form.id === formId)[0];
 };
@@ -20,6 +43,10 @@ export default function UserForm(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
   const [newField, setNewField] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    state.id !== props.formId && navigate(`/forms/${state.id}`);
+  }, [state.id, props.formId]);
 
   useEffect(() => {
     console.log("Component is mounted");
@@ -56,6 +83,7 @@ export default function UserForm(props: { formId: number }) {
         },
       ],
     });
+
     // Reset the input's value after adding a new field
     setNewField("");
   };

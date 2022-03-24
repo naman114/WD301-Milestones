@@ -14,14 +14,6 @@ export interface formField {
   value: string;
 }
 
-const initialFormFields: formField[] = [
-  { id: 1, label: "First Name", fieldType: "text", value: "" },
-  { id: 2, label: "Last Name", fieldType: "text", value: "" },
-  { id: 3, label: "Email", fieldType: "email", value: "" },
-  { id: 4, label: "Date of Birth", fieldType: "date", value: "" },
-  { id: 5, label: "Phone Number", fieldType: "text", value: "" },
-];
-
 export const saveLocalForms = (localForms: FormData[]) => {
   localStorage.setItem("savedForms", JSON.stringify(localForms));
 };
@@ -39,18 +31,6 @@ export default function FormList() {
   useEffect(() => {
     saveLocalForms(state);
   }, [state]);
-
-  const addForm = () => {
-    const newForm = {
-      id: Number(new Date()),
-      title: "Untitled Form",
-      formFields: initialFormFields,
-    };
-    setState([...state, newForm]);
-
-    // Open the newly added form
-    window.location.href = `/forms/${newForm.id}`;
-  };
 
   const removeForm = (id: number) => {
     setState(state.filter((form) => form.id !== id));
@@ -117,13 +97,13 @@ export default function FormList() {
           ))}
       </div>
       <div className="flex space-x-2">
-        <button
+        <a
           type="button"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          onClick={addForm}
+          href={"/forms/0"}
         >
           Add New Form
-        </button>
+        </a>
         <a
           href="/"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
