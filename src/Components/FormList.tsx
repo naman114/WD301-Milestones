@@ -56,7 +56,7 @@ export default function FormList() {
           }}
         />
         <input
-          className="flex w-min justify-center rounded-md border-2 border-blue-500 px-2 py-1 hover:cursor-pointer"
+          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           type="submit"
           value="Search"
         />
