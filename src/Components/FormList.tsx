@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useQueryParams } from "raviger";
+import { Link, useQueryParams } from "raviger";
 
 export interface FormData {
   id: number;
@@ -77,13 +77,13 @@ export default function FormList() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <a
+                  <Link
                     type="button"
                     href={`/forms/${form.id}`}
                     className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                   >
                     Edit
-                  </a>
+                  </Link>
                   <button
                     type="button"
                     className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -97,19 +97,19 @@ export default function FormList() {
           ))}
       </div>
       <div className="flex space-x-2">
-        <a
+        <Link
           type="button"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           href={"/forms/0"}
         >
           Add New Form
-        </a>
-        <a
+        </Link>
+        <Link
           href="/"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Close
-        </a>
+        </Link>
       </div>
     </div>
   );

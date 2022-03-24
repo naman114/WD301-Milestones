@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 import { FormData, formField, saveLocalForms, getLocalForms } from "./FormList";
-import { navigate } from "raviger";
+import { Link, navigate } from "raviger";
 
 const initialFormFields: formField[] = [
   { id: 1, label: "First Name", fieldType: "text", value: "" },
@@ -180,12 +180,12 @@ export default function UserForm(props: { formId: number }) {
         >
           Reset
         </button>
-        <a
+        <Link
           href="/forms/"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Close Form
-        </a>
+        </Link>
       </div>
     </div>
   );
