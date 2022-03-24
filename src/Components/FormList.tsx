@@ -33,7 +33,7 @@ export const getLocalForms = (): FormData[] => {
 
 export default function FormList() {
   const [{ search }, setQueryParams] = useQueryParams();
-  const [searchString, setSerachString] = useState("");
+  const [searchString, setSearchString] = useState("");
   const [state, setState] = useState(() => getLocalForms());
 
   useEffect(() => {
@@ -41,14 +41,15 @@ export default function FormList() {
   }, [state]);
 
   const addForm = () => {
-    setState([
-      ...state,
-      {
-        id: Number(new Date()),
-        title: "Untitled Form",
-        formFields: initialFormFields,
-      },
-    ]);
+    const newForm = {
+      id: Number(new Date()),
+      title: "Untitled Form",
+      formFields: initialFormFields,
+    };
+    setState([...state, newForm]);
+
+    // Open the newly added form
+    window.location.href = `/forms/${newForm.id}`;
   };
 
   const removeForm = (id: number) => {
@@ -56,7 +57,7 @@ export default function FormList() {
   };
 
   return (
-    <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
+    <div className="flex flex-col gap-5 divide-y-2 divide-dotted">
       <form
         className="flex justify-center"
         onSubmit={(e) => {
@@ -71,7 +72,7 @@ export default function FormList() {
           placeholder="Enter string to search"
           value={searchString}
           onChange={(e) => {
-            setSerachString(e.target.value);
+            setSearchString(e.target.value);
           }}
         />
         <input
@@ -88,7 +89,13 @@ export default function FormList() {
           .map((form) => (
             <React.Fragment key={form.id}>
               <div className="flex items-center justify-between rounded-xl border-2 px-4">
-                <p>{form.title}</p>
+                <div className="flex flex-col py-1">
+                  <p className=" text-lg ">{form.title}</p>
+                  <p className=" text-slate-700 ">
+                    {form.formFields.length} Questions
+                  </p>
+                </div>
+
                 <div className="flex space-x-2">
                   <a
                     type="button"
