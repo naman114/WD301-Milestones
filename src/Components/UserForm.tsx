@@ -41,7 +41,8 @@ const saveCurrentForm = (currentForm: FormData) => {
 
 export default function UserForm(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
-  const [newField, setNewField] = useState("");
+  const [newFieldLabel, setNewFieldLabel] = useState("");
+  const [newFieldType, setNewFieldType] = useState("text");
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -69,7 +70,7 @@ export default function UserForm(props: { formId: number }) {
   }, [state]);
 
   const addField = () => {
-    if (newField === "") return;
+    if (newFieldLabel === "") return;
 
     setState({
       ...state,
@@ -77,15 +78,15 @@ export default function UserForm(props: { formId: number }) {
         ...state.formFields,
         {
           id: Number(new Date()),
-          label: newField,
-          fieldType: "text",
+          label: newFieldLabel,
+          fieldType: newFieldType,
           value: "",
         },
       ],
     });
 
     // Reset the input's value after adding a new field
-    setNewField("");
+    setNewFieldLabel("");
   };
 
   const removeField = (id: number) => {
@@ -155,10 +156,22 @@ export default function UserForm(props: { formId: number }) {
           type="text"
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
           onChange={(e) => {
-            setNewField(e.target.value);
+            setNewFieldLabel(e.target.value);
           }}
-          value={newField}
+          value={newFieldLabel}
+          placeholder="Enter label for new field"
         />
+        <select
+          className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
+          onChange={(e) => {
+            setNewFieldType(e.target.value);
+          }}
+          value={newFieldType}
+        >
+          <option value="text">Text</option>
+          <option value="email">Email</option>
+          <option value="date">Date</option>
+        </select>
         <button
           onClick={addField}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
