@@ -96,14 +96,29 @@ export default function UserForm(props: { formId: number }) {
     });
   };
 
-  const updateInputFieldValue = (id: number, value: string) => {
+  const updateInputFieldLabel = (id: number, label: string) => {
     setState({
       ...state,
       formFields: state.formFields.map((field) => {
         if (field.id === id) {
           return {
             ...field,
-            value,
+            label,
+          };
+        }
+        return field;
+      }),
+    });
+  };
+
+  const updateFieldType = (id: number, type: string) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.id === id) {
+          return {
+            ...field,
+            fieldType: type,
           };
         }
         return field;
@@ -145,8 +160,9 @@ export default function UserForm(props: { formId: number }) {
               label={field.label}
               fieldType={field.fieldType}
               value={field.value}
+              updateFieldTypeCB={updateFieldType}
               removeFieldCB={removeField}
-              updateInputFieldValueCB={updateInputFieldValue}
+              updateInputFieldLabelCB={updateInputFieldLabel}
             />
           </React.Fragment>
         ))}
@@ -159,7 +175,7 @@ export default function UserForm(props: { formId: number }) {
             setNewFieldLabel(e.target.value);
           }}
           value={newFieldLabel}
-          placeholder="Enter label for new field"
+          placeholder="Enter a label for the new field"
         />
         <select
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
