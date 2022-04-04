@@ -1,11 +1,7 @@
 import { Link } from "raviger";
 import React, { useState } from "react";
-import { FormData, getLocalForms } from "./FormList";
-
-interface FormResponse {
-  id: number;
-  formData: FormData;
-}
+import { getLocalForms } from "./FormList";
+import { FormResponse } from "../types/formTypes";
 
 const initialState = (formId: number): FormResponse => {
   const savedForms = getLocalForms();

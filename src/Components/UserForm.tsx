@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import { FormData, formField, saveLocalForms, getLocalForms } from "./FormList";
+import { saveLocalForms, getLocalForms } from "./FormList";
 import { Link, navigate } from "raviger";
+import { FormData, formField } from "../types/formTypes";
 
 const initialFormFields: formField[] = [
   { id: 1, label: "First Name", fieldType: "text", value: "" },

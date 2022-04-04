@@ -1,18 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useQueryParams } from "raviger";
-
-export interface FormData {
-  id: number;
-  title: string;
-  formFields: formField[];
-}
-
-export interface formField {
-  id: number;
-  label: string;
-  fieldType: string;
-  value: string;
-}
+import { FormData, formField } from "../types/formTypes";
 
 export const saveLocalForms = (localForms: FormData[]) => {
   localStorage.setItem("savedForms", JSON.stringify(localForms));
