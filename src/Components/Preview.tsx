@@ -28,7 +28,9 @@ const saveFormResponse = (response: FormResponse) => {
 
 export default function Preview(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
-  const [questionId, setQuestionId] = useState(state.formData.formFields[0].id);
+  const [questionId, setQuestionId] = useState(
+    state.formData.formFields[0]?.id || -1
+  );
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const getQuestionLabel = () =>
@@ -83,7 +85,17 @@ export default function Preview(props: { formId: number }) {
     });
   };
 
-  return !isSubmitted ? (
+  return questionId === -1 ? (
+    <>
+      <p className="my-2">This form is empty!</p>
+      <Link
+        className="group relative my-4 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        href="/forms/"
+      >
+        View More Forms
+      </Link>
+    </>
+  ) : !isSubmitted ? (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
       <label className="mt-2 ml-1">{getQuestionLabel()}</label>
       <input
