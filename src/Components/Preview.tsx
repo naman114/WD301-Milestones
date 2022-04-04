@@ -1,6 +1,6 @@
 import { Link } from "raviger";
 import React, { useState } from "react";
-import { FormData, formField, saveLocalForms, getLocalForms } from "./FormList";
+import { FormData, getLocalForms } from "./FormList";
 
 interface FormResponse {
   id: number;
@@ -35,7 +35,6 @@ export default function Preview(props: { formId: number }) {
   const [questionId, setQuestionId] = useState(state.formData.formFields[0].id);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  console.log(state, questionId);
   const getQuestionLabel = () =>
     state.formData.formFields.find((field) => field.id === questionId)?.label;
 
@@ -125,7 +124,7 @@ export default function Preview(props: { formId: number }) {
         ) : (
           <button
             onClick={(e) => {
-              const response = saveFormResponse(state);
+              saveFormResponse(state);
               setIsSubmitted(true);
             }}
             className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -143,9 +142,11 @@ export default function Preview(props: { formId: number }) {
       <br />
       <br />
       {state.formData.formFields.map((field) => (
-        <p>
-          {field.label}: {field.value}
-        </p>
+        <React.Fragment key={field.id}>
+          <p>
+            {field.label}: {field.value}
+          </p>
+        </React.Fragment>
       ))}
       <Link
         className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
