@@ -33,11 +33,15 @@ const saveFormResponse = (response: FormResponse) => {
 export default function Preview(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
   const [questionId, setQuestionId] = useState(state.formData.formFields[0].id);
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const getQuestionLabel = () => state.formData.formFields[questionId].label;
+  console.log(state, questionId);
+  const getQuestionLabel = () =>
+    state.formData.formFields.find((field) => field.id === questionId)?.label;
 
   const getQuestionFieldType = () =>
-    state.formData.formFields[questionId].fieldType;
+    state.formData.formFields.find((field) => field.id === questionId)
+      ?.fieldType;
 
   const hasPreviousQuestion = (): boolean => {
     const index = state.formData.formFields.findIndex((formField) => {
@@ -84,14 +88,19 @@ export default function Preview(props: { formId: number }) {
     });
   };
 
-  return (
+  return !isSubmitted ? (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
-      <label>{getQuestionLabel()}</label>
+      <label className="mt-2 ml-1">{getQuestionLabel()}</label>
       <input
         className="mr-4 w-full rounded-2xl bg-slate-100 p-3 focus:outline-none"
         type={getQuestionFieldType()}
-        value={state.formData.formFields[questionId].value}
-        onChange={(e) => saveUserInput(e.target.value)}
+        value={
+          state.formData.formFields.find((field) => field.id === questionId)
+            ?.value
+        }
+        onChange={(e) => {
+          saveUserInput(e.target.value);
+        }}
       />
       <div className="flex justify-between">
         {hasPreviousQuestion() ? (
@@ -115,13 +124,35 @@ export default function Preview(props: { formId: number }) {
           </button>
         ) : (
           <button
-            onClick={() => saveFormResponse(state)}
+            onClick={(e) => {
+              const response = saveFormResponse(state);
+              setIsSubmitted(true);
+            }}
             className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Submit
           </button>
         )}
       </div>
+    </div>
+  ) : (
+    <div className="flex flex-col gap-4">
+      Thanks for filling out the form!
+      <br />
+      Here's what we got:
+      <br />
+      <br />
+      {state.formData.formFields.map((field) => (
+        <p>
+          {field.label}: {field.value}
+        </p>
+      ))}
+      <Link
+        className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        href="/forms/"
+      >
+        View More Forms
+      </Link>
     </div>
   );
 }
