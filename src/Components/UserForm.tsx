@@ -2,14 +2,21 @@ import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { Link, navigate } from "raviger";
-import { FormData, formField } from "../types/formTypes";
+import { FormData, formField, textFieldTypes } from "../types/formTypes";
 
 const initialFormFields: formField[] = [
-  { id: 1, label: "First Name", fieldType: "text", value: "" },
-  { id: 2, label: "Last Name", fieldType: "text", value: "" },
-  { id: 3, label: "Email", fieldType: "email", value: "" },
-  { id: 4, label: "Date of Birth", fieldType: "date", value: "" },
-  { id: 5, label: "Phone Number", fieldType: "text", value: "" },
+  { kind: "text", id: 1, label: "First Name", fieldType: "text", value: "" },
+  { kind: "text", id: 2, label: "Last Name", fieldType: "text", value: "" },
+  { kind: "text", id: 3, label: "Email", fieldType: "email", value: "" },
+  { kind: "text", id: 4, label: "Date of Birth", fieldType: "date", value: "" },
+  { kind: "text", id: 5, label: "Phone Number", fieldType: "text", value: "" },
+  {
+    kind: "dropdown",
+    id: 6,
+    label: "Priority",
+    options: ["High", "Low"],
+    value: "",
+  },
 ];
 
 const initialState = (formId: number): FormData => {
@@ -43,7 +50,7 @@ const saveCurrentForm = (currentForm: FormData) => {
 export default function UserForm(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
   const [newFieldLabel, setNewFieldLabel] = useState("");
-  const [newFieldType, setNewFieldType] = useState("text");
+  const [newFieldType, setNewFieldType] = useState("text" as textFieldTypes);
   const titleRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -78,6 +85,7 @@ export default function UserForm(props: { formId: number }) {
       formFields: [
         ...state.formFields,
         {
+          kind: "text",
           id: Number(new Date()),
           label: newFieldLabel,
           fieldType: newFieldType,
@@ -112,7 +120,7 @@ export default function UserForm(props: { formId: number }) {
     });
   };
 
-  const updateFieldType = (id: number, type: string) => {
+  const updateFieldType = (id: number, type: textFieldTypes) => {
     setState({
       ...state,
       formFields: state.formFields.map((field) => {
@@ -139,6 +147,20 @@ export default function UserForm(props: { formId: number }) {
     });
   };
 
+  const saveUserInput = (id: number, value: string) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.id === id)
+          return {
+            ...field,
+            value,
+          };
+        return field;
+      }),
+    });
+  };
+
   return (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
       <input
@@ -154,19 +176,38 @@ export default function UserForm(props: { formId: number }) {
         ref={titleRef}
       />
       <div>
-        {state.formFields.map((field) => (
-          <React.Fragment key={field.id}>
-            <LabelledInput
-              id={field.id}
-              label={field.label}
-              fieldType={field.fieldType}
-              value={field.value}
-              updateFieldTypeCB={updateFieldType}
-              removeFieldCB={removeField}
-              updateInputFieldLabelCB={updateInputFieldLabel}
-            />
-          </React.Fragment>
-        ))}
+        {state.formFields.map((field) => {
+          switch (field.kind) {
+            case "text":
+              return (
+                <LabelledInput
+                  id={field.id}
+                  label={field.label}
+                  fieldType={field.fieldType}
+                  value={field.value}
+                  updateFieldTypeCB={updateFieldType}
+                  removeFieldCB={removeField}
+                  updateInputFieldLabelCB={updateInputFieldLabel}
+                />
+              );
+            case "dropdown":
+              return (
+                <select
+                  value={field.value}
+                  onChange={(e) => {
+                    saveUserInput(field.id, e.target.value);
+                  }}
+                >
+                  <option value="">Select an option</option>
+                  {field.options.map((option, index) => (
+                    <option key={index} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              );
+          }
+        })}
       </div>
       <div className="flex gap-2">
         <input
@@ -181,7 +222,7 @@ export default function UserForm(props: { formId: number }) {
         <select
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
           onChange={(e) => {
-            setNewFieldType(e.target.value);
+            setNewFieldType(e.target.value as textFieldTypes);
           }}
           value={newFieldType}
         >
