@@ -1,15 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useQueryParams } from "raviger";
 import { FormData, formField } from "../types/formTypes";
-
-export const saveLocalForms = (localForms: FormData[]) => {
-  localStorage.setItem("savedForms", JSON.stringify(localForms));
-};
-
-export const getLocalForms = (): FormData[] => {
-  const savedFormsJSON = localStorage.getItem("savedForms");
-  return savedFormsJSON ? JSON.parse(savedFormsJSON) : [];
-};
+import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 
 export default function FormList() {
   const [{ search }, setQueryParams] = useQueryParams();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
-import { saveLocalForms, getLocalForms } from "./FormList";
+import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { Link, navigate } from "raviger";
 import { FormData, formField } from "../types/formTypes";
 
