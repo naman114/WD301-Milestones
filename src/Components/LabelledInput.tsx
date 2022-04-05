@@ -1,11 +1,12 @@
 import React from "react";
+import { textFieldTypes } from "../types/formTypes";
 
 export default function LabelledInput(props: {
   id: number;
   label: string;
   value: string;
-  fieldType: string;
-  updateFieldTypeCB: (id: number, type: string) => void;
+  fieldType: textFieldTypes;
+  updateFieldTypeCB: (id: number, type: textFieldTypes) => void;
   removeFieldCB: (id: number) => void;
   updateInputFieldLabelCB: (id: number, label: string) => void;
 }) {
@@ -23,7 +24,7 @@ export default function LabelledInput(props: {
         <select
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
           onChange={(e) => {
-            props.updateFieldTypeCB(props.id, e.target.value);
+            props.updateFieldTypeCB(props.id, e.target.value as textFieldTypes);
           }}
           value={props.fieldType}
         >

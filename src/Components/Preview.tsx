@@ -1,7 +1,7 @@
 import { Link } from "raviger";
 import React, { useState } from "react";
 import { getLocalForms } from "../utils/storageUtils";
-import { FormResponse } from "../types/formTypes";
+import { FormResponse, TextField } from "../types/formTypes";
 
 const initialState = (formId: number): FormResponse => {
   const savedForms = getLocalForms();
@@ -37,8 +37,11 @@ export default function Preview(props: { formId: number }) {
     state.formData.formFields.find((field) => field.id === questionId)?.label;
 
   const getQuestionFieldType = () =>
-    state.formData.formFields.find((field) => field.id === questionId)
-      ?.fieldType;
+    (
+      state.formData.formFields.find(
+        (field) => field.id === questionId
+      ) as TextField
+    )?.fieldType;
 
   const hasPreviousQuestion = (): boolean => {
     const index = state.formData.formFields.findIndex((formField) => {
@@ -85,6 +88,44 @@ export default function Preview(props: { formId: number }) {
     });
   };
 
+  const renderQuestion = () => {
+    const field = state.formData.formFields.find(
+      (field) => field.id === questionId
+    )!;
+    switch (field.kind) {
+      case "text":
+        return (
+          <input
+            className="mr-4 w-full rounded-2xl bg-slate-100 p-3 focus:outline-none"
+            type={getQuestionFieldType()}
+            value={
+              state.formData.formFields.find((field) => field.id === questionId)
+                ?.value
+            }
+            onChange={(e) => {
+              saveUserInput(e.target.value);
+            }}
+          />
+        );
+      case "dropdown":
+        return (
+          <select
+            value={field.value}
+            onChange={(e) => {
+              saveUserInput(e.target.value);
+            }}
+          >
+            <option value="">Select an option</option>
+            {field.options.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        );
+    }
+  };
+
   return questionId === -1 ? (
     <>
       <p className="my-2">This form is empty!</p>
@@ -98,17 +139,7 @@ export default function Preview(props: { formId: number }) {
   ) : !isSubmitted ? (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
       <label className="mt-2 ml-1">{getQuestionLabel()}</label>
-      <input
-        className="mr-4 w-full rounded-2xl bg-slate-100 p-3 focus:outline-none"
-        type={getQuestionFieldType()}
-        value={
-          state.formData.formFields.find((field) => field.id === questionId)
-            ?.value
-        }
-        onChange={(e) => {
-          saveUserInput(e.target.value);
-        }}
-      />
+      {renderQuestion()}
       <div className="flex justify-between">
         {hasPreviousQuestion() ? (
           <button
