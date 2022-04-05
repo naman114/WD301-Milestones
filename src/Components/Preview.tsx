@@ -1,6 +1,6 @@
 import { Link } from "raviger";
 import React, { useState } from "react";
-import { getLocalForms } from "./FormList";
+import { getLocalForms } from "../utils/storageUtils";
 import { FormResponse } from "../types/formTypes";
 
 const initialState = (formId: number): FormResponse => {
