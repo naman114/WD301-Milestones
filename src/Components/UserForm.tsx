@@ -2,7 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import LabelledInput from "./LabelledInput";
 import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { Link, navigate } from "raviger";
-import { FormData, formField, textFieldTypes } from "../types/formTypes";
+import {
+  DropDownField,
+  FormData,
+  formField,
+  TextField,
+  textFieldTypes,
+} from "../types/formTypes";
+import LabelledDropdownInput from "./LabelledDropdownInput";
 
 const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "First Name", fieldType: "text", value: "" },
@@ -49,7 +56,9 @@ const saveCurrentForm = (currentForm: FormData) => {
 
 export default function UserForm(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
+  const [newFieldKind, setNewFieldKind] = useState("text");
   const [newFieldLabel, setNewFieldLabel] = useState("");
+  const [newFieldOptions, setNewFieldOptions] = useState<string[]>([]);
   const [newFieldType, setNewFieldType] = useState("text" as textFieldTypes);
   const titleRef = useRef<HTMLInputElement>(null);
 
@@ -78,24 +87,33 @@ export default function UserForm(props: { formId: number }) {
   }, [state]);
 
   const addField = () => {
-    if (newFieldLabel === "") return;
+    if (newFieldLabel === "" || newFieldOptions.length === 0) return;
+
+    let formFieldToAdd: TextField | DropDownField = {
+      kind: "text",
+      id: Number(new Date()),
+      label: newFieldLabel,
+      fieldType: newFieldType,
+      value: "",
+    };
+
+    if (newFieldKind === "dropdown")
+      formFieldToAdd = {
+        kind: "dropdown",
+        id: Number(new Date()),
+        label: newFieldLabel,
+        options: newFieldOptions,
+        value: "",
+      };
 
     setState({
       ...state,
-      formFields: [
-        ...state.formFields,
-        {
-          kind: "text",
-          id: Number(new Date()),
-          label: newFieldLabel,
-          fieldType: newFieldType,
-          value: "",
-        },
-      ],
+      formFields: [...state.formFields, formFieldToAdd],
     });
 
     // Reset the input's value after adding a new field
     setNewFieldLabel("");
+    setNewFieldOptions([]);
   };
 
   const removeField = (id: number) => {
@@ -135,6 +153,21 @@ export default function UserForm(props: { formId: number }) {
     });
   };
 
+  const updateOptions = (id: number, options: string) => {
+    setState({
+      ...state,
+      formFields: state.formFields.map((field) => {
+        if (field.id === id) {
+          return {
+            ...field,
+            options: parseOptions(options),
+          };
+        }
+        return field;
+      }),
+    });
+  };
+
   const resetForm = () => {
     setState({
       ...state,
@@ -160,6 +193,8 @@ export default function UserForm(props: { formId: number }) {
       }),
     });
   };
+
+  const parseOptions = (options: string) => options.split(",");
 
   return (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
@@ -192,24 +227,30 @@ export default function UserForm(props: { formId: number }) {
               );
             case "dropdown":
               return (
-                <select
+                <LabelledDropdownInput
+                  id={field.id}
+                  label={field.label}
+                  options={field.options}
                   value={field.value}
-                  onChange={(e) => {
-                    saveUserInput(field.id, e.target.value);
-                  }}
-                >
-                  <option value="">Select an option</option>
-                  {field.options.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
+                  updateOptionsCB={updateOptions}
+                  removeFieldCB={removeField}
+                  updateInputFieldLabelCB={updateInputFieldLabel}
+                />
               );
           }
         })}
       </div>
       <div className="flex gap-2">
+        <select
+          className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
+          onChange={(e) => {
+            setNewFieldKind(e.target.value);
+          }}
+          value={newFieldKind}
+        >
+          <option value="text">Text Field</option>
+          <option value="dropdown">Dropdown</option>
+        </select>
         <input
           type="text"
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
@@ -219,17 +260,29 @@ export default function UserForm(props: { formId: number }) {
           value={newFieldLabel}
           placeholder="Enter a label for the new field"
         />
-        <select
-          className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
-          onChange={(e) => {
-            setNewFieldType(e.target.value as textFieldTypes);
-          }}
-          value={newFieldType}
-        >
-          <option value="text">Text</option>
-          <option value="email">Email</option>
-          <option value="date">Date</option>
-        </select>
+        {newFieldKind === "text" ? (
+          <select
+            className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
+            onChange={(e) => {
+              setNewFieldType(e.target.value as textFieldTypes);
+            }}
+            value={newFieldType}
+          >
+            <option value="text">Text</option>
+            <option value="email">Email</option>
+            <option value="date">Date</option>
+          </select>
+        ) : (
+          <input
+            type="text"
+            className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
+            onChange={(e) => {
+              setNewFieldOptions(parseOptions(e.target.value));
+            }}
+            value={newFieldOptions}
+            placeholder="Enter options"
+          />
+        )}
         <button
           onClick={addField}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
