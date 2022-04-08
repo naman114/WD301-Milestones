@@ -6,6 +6,7 @@ import {
   DropDownField,
   FormData,
   formField,
+  RadioField,
   TextField,
   textFieldTypes,
 } from "../types/formTypes";
@@ -22,6 +23,13 @@ const initialFormFields: formField[] = [
     id: 6,
     label: "Priority",
     options: ["High", "Low"],
+    value: "",
+  },
+  {
+    kind: "radio",
+    id: 7,
+    label: "Language",
+    options: ["Python", "JS", "Java"],
     value: "",
   },
 ];
@@ -87,9 +95,13 @@ export default function UserForm(props: { formId: number }) {
   }, [state]);
 
   const addField = () => {
-    if (newFieldLabel === "" || newFieldOptions.length === 0) return;
+    if (
+      newFieldLabel === "" ||
+      (newFieldKind !== "text" && newFieldOptions.length === 0)
+    )
+      return;
 
-    let formFieldToAdd: TextField | DropDownField = {
+    let formFieldToAdd: TextField | DropDownField | RadioField = {
       kind: "text",
       id: Number(new Date()),
       label: newFieldLabel,
@@ -100,6 +112,15 @@ export default function UserForm(props: { formId: number }) {
     if (newFieldKind === "dropdown")
       formFieldToAdd = {
         kind: "dropdown",
+        id: Number(new Date()),
+        label: newFieldLabel,
+        options: newFieldOptions,
+        value: "",
+      };
+
+    if (newFieldKind === "radio")
+      formFieldToAdd = {
+        kind: "radio",
         id: Number(new Date()),
         label: newFieldLabel,
         options: newFieldOptions,
@@ -225,6 +246,8 @@ export default function UserForm(props: { formId: number }) {
                   updateInputFieldLabelCB={updateInputFieldLabel}
                 />
               );
+
+            case "radio":
             case "dropdown":
               return (
                 <LabelledDropdownInput
@@ -250,6 +273,7 @@ export default function UserForm(props: { formId: number }) {
         >
           <option value="text">Text Field</option>
           <option value="dropdown">Dropdown</option>
+          <option value="radio">Radio Button</option>
         </select>
         <input
           type="text"

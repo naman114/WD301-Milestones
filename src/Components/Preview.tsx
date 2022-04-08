@@ -123,6 +123,27 @@ export default function Preview(props: { formId: number }) {
             ))}
           </select>
         );
+
+      case "radio":
+        return (
+          <div>
+            {field.options.map((option) => {
+              return (
+                <>
+                  <div className="ml-1 flex items-center space-x-2">
+                    <input
+                      type="radio"
+                      name={field.label}
+                      value={option}
+                      onChange={(e) => saveUserInput(e.target.value)}
+                    />
+                    <label htmlFor={field.label}>{option}</label>
+                  </div>
+                </>
+              );
+            })}
+          </div>
+        );
     }
   };
 

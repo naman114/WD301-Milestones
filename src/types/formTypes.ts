@@ -22,7 +22,15 @@ export type DropDownField = {
   value: string;
 };
 
-export type formField = TextField | DropDownField;
+export type RadioField = {
+  kind: "radio";
+  id: number;
+  label: string;
+  options: string[];
+  value: string;
+};
+
+export type formField = TextField | DropDownField | RadioField;
 
 export type FormResponse = {
   id: number;
