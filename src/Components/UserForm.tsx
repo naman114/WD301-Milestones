@@ -7,10 +7,12 @@ import {
   FormData,
   formField,
   RadioField,
+  TextAreaField,
   TextField,
   textFieldTypes,
 } from "../types/formTypes";
 import LabelledDropdownInput from "./LabelledDropdownInput";
+import LabelledTextAreaInput from "./LabelledTextAreaInput";
 
 const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "First Name", fieldType: "text", value: "" },
@@ -32,7 +34,20 @@ const initialFormFields: formField[] = [
     options: ["Python", "JS", "Java"],
     value: "",
   },
+  {
+    kind: "textarea",
+    id: 8,
+    label: "Brief about yourself",
+    value: "",
+  },
 ];
+
+const inputTypes = {
+  text: "Text",
+  dropdown: "Dropdown",
+  radio: "Radio",
+  textarea: "Text Area",
+};
 
 const initialState = (formId: number): FormData => {
   if (formId === 0) {
@@ -97,17 +112,19 @@ export default function UserForm(props: { formId: number }) {
   const addField = () => {
     if (
       newFieldLabel === "" ||
-      (newFieldKind !== "text" && newFieldOptions.length === 0)
+      (["dropdown", "radio"].includes(newFieldKind) &&
+        newFieldOptions.length === 0)
     )
       return;
 
-    let formFieldToAdd: TextField | DropDownField | RadioField = {
-      kind: "text",
-      id: Number(new Date()),
-      label: newFieldLabel,
-      fieldType: newFieldType,
-      value: "",
-    };
+    let formFieldToAdd: TextField | DropDownField | RadioField | TextAreaField =
+      {
+        kind: "text",
+        id: Number(new Date()),
+        label: newFieldLabel,
+        fieldType: newFieldType,
+        value: "",
+      };
 
     if (newFieldKind === "dropdown")
       formFieldToAdd = {
@@ -124,6 +141,14 @@ export default function UserForm(props: { formId: number }) {
         id: Number(new Date()),
         label: newFieldLabel,
         options: newFieldOptions,
+        value: "",
+      };
+
+    if (newFieldKind === "textarea")
+      formFieldToAdd = {
+        kind: "textarea",
+        id: Number(new Date()),
+        label: newFieldLabel,
         value: "",
       };
 
@@ -217,6 +242,41 @@ export default function UserForm(props: { formId: number }) {
 
   const parseOptions = (options: string) => options.split(",");
 
+  const renderAdditionalInputs = () => {
+    switch (newFieldKind) {
+      case "text":
+        return (
+          <select
+            className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
+            onChange={(e) => {
+              setNewFieldType(e.target.value as textFieldTypes);
+            }}
+            value={newFieldType}
+          >
+            <option value="text">Text</option>
+            <option value="email">Email</option>
+            <option value="date">Date</option>
+          </select>
+        );
+
+      case "radio":
+      case "dropdown":
+        return (
+          <input
+            type="text"
+            className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
+            onChange={(e) => {
+              setNewFieldOptions(parseOptions(e.target.value));
+            }}
+            value={newFieldOptions}
+            placeholder="Enter options"
+          />
+        );
+      case "textarea":
+        return;
+    }
+  };
+
   return (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
       <input
@@ -241,6 +301,7 @@ export default function UserForm(props: { formId: number }) {
                   label={field.label}
                   fieldType={field.fieldType}
                   value={field.value}
+                  kind={inputTypes[field.kind]}
                   updateFieldTypeCB={updateFieldType}
                   removeFieldCB={removeField}
                   updateInputFieldLabelCB={updateInputFieldLabel}
@@ -255,7 +316,20 @@ export default function UserForm(props: { formId: number }) {
                   label={field.label}
                   options={field.options}
                   value={field.value}
+                  kind={inputTypes[field.kind]}
                   updateOptionsCB={updateOptions}
+                  removeFieldCB={removeField}
+                  updateInputFieldLabelCB={updateInputFieldLabel}
+                />
+              );
+
+            case "textarea":
+              return (
+                <LabelledTextAreaInput
+                  id={field.id}
+                  label={field.label}
+                  value={field.value}
+                  kind={inputTypes[field.kind]}
                   removeFieldCB={removeField}
                   updateInputFieldLabelCB={updateInputFieldLabel}
                 />
@@ -271,9 +345,9 @@ export default function UserForm(props: { formId: number }) {
           }}
           value={newFieldKind}
         >
-          <option value="text">Text Field</option>
-          <option value="dropdown">Dropdown</option>
-          <option value="radio">Radio Button</option>
+          {Object.entries(inputTypes).map((item) => {
+            return <option value={item[0]}>{item[1]}</option>;
+          })}
         </select>
         <input
           type="text"
@@ -284,29 +358,7 @@ export default function UserForm(props: { formId: number }) {
           value={newFieldLabel}
           placeholder="Enter a label for the new field"
         />
-        {newFieldKind === "text" ? (
-          <select
-            className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
-            onChange={(e) => {
-              setNewFieldType(e.target.value as textFieldTypes);
-            }}
-            value={newFieldType}
-          >
-            <option value="text">Text</option>
-            <option value="email">Email</option>
-            <option value="date">Date</option>
-          </select>
-        ) : (
-          <input
-            type="text"
-            className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
-            onChange={(e) => {
-              setNewFieldOptions(parseOptions(e.target.value));
-            }}
-            value={newFieldOptions}
-            placeholder="Enter options"
-          />
-        )}
+        {renderAdditionalInputs()}
         <button
           onClick={addField}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

@@ -6,13 +6,17 @@ export default function LabelledInput(props: {
   label: string;
   value: string;
   fieldType: textFieldTypes;
+  kind: string;
   updateFieldTypeCB: (id: number, type: textFieldTypes) => void;
   removeFieldCB: (id: number) => void;
   updateInputFieldLabelCB: (id: number, label: string) => void;
 }) {
   return (
     <>
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
+        <p className="my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2">
+          {props.kind}
+        </p>
         <input
           type="text"
           value={props.label}

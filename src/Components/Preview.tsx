@@ -144,6 +144,9 @@ export default function Preview(props: { formId: number }) {
             })}
           </div>
         );
+
+      case "textarea":
+        return <textarea name={field.label} cols={4} rows={5}></textarea>;
     }
   };
 

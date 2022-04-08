@@ -30,7 +30,14 @@ export type RadioField = {
   value: string;
 };
 
-export type formField = TextField | DropDownField | RadioField;
+export type TextAreaField = {
+  kind: "textarea";
+  id: number;
+  label: string;
+  value: string;
+};
+
+export type formField = TextField | DropDownField | RadioField | TextAreaField;
 
 export type FormResponse = {
   id: number;

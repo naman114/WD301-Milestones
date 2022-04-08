@@ -1,13 +1,11 @@
 import React from "react";
 import { textFieldTypes } from "../types/formTypes";
 
-export default function LabelledDropdownInput(props: {
+export default function LabelledTextAreaInput(props: {
   id: number;
   label: string;
   value: string;
-  options: string[];
   kind: string;
-  updateOptionsCB: (id: number, options: string) => void;
   removeFieldCB: (id: number) => void;
   updateInputFieldLabelCB: (id: number, label: string) => void;
 }) {
@@ -22,14 +20,6 @@ export default function LabelledDropdownInput(props: {
           value={props.label}
           onChange={(e) => {
             props.updateInputFieldLabelCB(props.id, e.target.value);
-          }}
-          className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
-        />
-        <input
-          type="text"
-          value={props.options}
-          onChange={(e) => {
-            props.updateOptionsCB(props.id, e.target.value);
           }}
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
         />
