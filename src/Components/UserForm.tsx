@@ -6,6 +6,7 @@ import {
   DropDownField,
   FormData,
   formField,
+  MultiSelectField,
   RadioField,
   TextAreaField,
   TextField,
@@ -40,6 +41,13 @@ const initialFormFields: formField[] = [
     label: "Brief about yourself",
     value: "",
   },
+  {
+    kind: "multiselect",
+    id: 9,
+    label: "Cars",
+    options: ["BMW", "Audi", "Mercedes"],
+    value: "",
+  },
 ];
 
 const inputTypes = {
@@ -47,6 +55,7 @@ const inputTypes = {
   dropdown: "Dropdown",
   radio: "Radio",
   textarea: "Text Area",
+  multiselect: "Multi Select",
 };
 
 const initialState = (formId: number): FormData => {
@@ -117,27 +126,26 @@ export default function UserForm(props: { formId: number }) {
     )
       return;
 
-    let formFieldToAdd: TextField | DropDownField | RadioField | TextAreaField =
-      {
-        kind: "text",
-        id: Number(new Date()),
-        label: newFieldLabel,
-        fieldType: newFieldType,
-        value: "",
-      };
+    let formFieldToAdd:
+      | TextField
+      | DropDownField
+      | RadioField
+      | TextAreaField
+      | MultiSelectField = {
+      kind: "text",
+      id: Number(new Date()),
+      label: newFieldLabel,
+      fieldType: newFieldType,
+      value: "",
+    };
 
-    if (newFieldKind === "dropdown")
+    if (
+      newFieldKind === "dropdown" ||
+      newFieldKind === "radio" ||
+      newFieldKind === "multiselect"
+    )
       formFieldToAdd = {
-        kind: "dropdown",
-        id: Number(new Date()),
-        label: newFieldLabel,
-        options: newFieldOptions,
-        value: "",
-      };
-
-    if (newFieldKind === "radio")
-      formFieldToAdd = {
-        kind: "radio",
+        kind: newFieldKind,
         id: Number(new Date()),
         label: newFieldLabel,
         options: newFieldOptions,
@@ -146,7 +154,7 @@ export default function UserForm(props: { formId: number }) {
 
     if (newFieldKind === "textarea")
       formFieldToAdd = {
-        kind: "textarea",
+        kind: newFieldKind,
         id: Number(new Date()),
         label: newFieldLabel,
         value: "",
@@ -260,6 +268,7 @@ export default function UserForm(props: { formId: number }) {
         );
 
       case "radio":
+      case "multiselect":
       case "dropdown":
         return (
           <input
@@ -309,6 +318,7 @@ export default function UserForm(props: { formId: number }) {
               );
 
             case "radio":
+            case "multiselect":
             case "dropdown":
               return (
                 <LabelledDropdownInput

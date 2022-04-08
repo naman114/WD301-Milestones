@@ -37,7 +37,20 @@ export type TextAreaField = {
   value: string;
 };
 
-export type formField = TextField | DropDownField | RadioField | TextAreaField;
+export type MultiSelectField = {
+  kind: "multiselect";
+  id: number;
+  label: string;
+  options: string[];
+  value: string;
+};
+
+export type formField =
+  | TextField
+  | DropDownField
+  | RadioField
+  | TextAreaField
+  | MultiSelectField;
 
 export type FormResponse = {
   id: number;

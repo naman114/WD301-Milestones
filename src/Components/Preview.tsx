@@ -147,6 +147,27 @@ export default function Preview(props: { formId: number }) {
 
       case "textarea":
         return <textarea name={field.label} cols={4} rows={5}></textarea>;
+
+      case "multiselect":
+        return (
+          <select
+            value={field.value.split(",")}
+            onChange={(e) => {
+              let value = Array.from(
+                e.target.selectedOptions,
+                (option) => option.value
+              );
+              saveUserInput(value.join(","));
+            }}
+            multiple
+          >
+            {field.options.map((option, index) => (
+              <option key={index} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        );
     }
   };
 
