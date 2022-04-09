@@ -16,34 +16,32 @@ import LabelledDropdownInput from "./LabelledDropdownInput";
 import LabelledTextAreaInput from "./LabelledTextAreaInput";
 
 const initialFormFields: formField[] = [
-  { kind: "text", id: 1, label: "First Name", fieldType: "text", value: "" },
-  { kind: "text", id: 2, label: "Last Name", fieldType: "text", value: "" },
+  { kind: "text", id: 1, label: "Name", fieldType: "text", value: "" },
   { kind: "text", id: 3, label: "Email", fieldType: "email", value: "" },
   { kind: "text", id: 4, label: "Date of Birth", fieldType: "date", value: "" },
-  { kind: "text", id: 5, label: "Phone Number", fieldType: "text", value: "" },
   {
     kind: "dropdown",
-    id: 6,
+    id: 5,
     label: "Priority",
     options: ["High", "Low"],
     value: "",
   },
   {
     kind: "radio",
-    id: 7,
+    id: 6,
     label: "Language",
     options: ["Python", "JS", "Java"],
     value: "",
   },
   {
     kind: "textarea",
-    id: 8,
+    id: 7,
     label: "Brief about yourself",
     value: "",
   },
   {
     kind: "multiselect",
-    id: 9,
+    id: 8,
     label: "Cars",
     options: ["BMW", "Audi", "Mercedes"],
     value: "",

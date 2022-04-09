@@ -2,6 +2,8 @@ import { Link } from "raviger";
 import React, { useState } from "react";
 import { getLocalForms } from "../utils/storageUtils";
 import { FormResponse, TextField } from "../types/formTypes";
+import Select from "react-select";
+import { MultiValue } from "react-select";
 
 const initialState = (formId: number): FormResponse => {
   const savedForms = getLocalForms();
@@ -28,6 +30,9 @@ const saveFormResponse = (response: FormResponse) => {
 
 export default function Preview(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
+  const [multiSelectValues, setMultiSelectValues] = useState<
+    MultiValue<{ value: string; label: string }>
+  >([]);
   const [questionId, setQuestionId] = useState(
     state.formData.formFields[0]?.id || -1
   );
@@ -127,9 +132,9 @@ export default function Preview(props: { formId: number }) {
       case "radio":
         return (
           <div>
-            {field.options.map((option) => {
+            {field.options.map((option, index) => {
               return (
-                <>
+                <React.Fragment key={index}>
                   <div className="ml-1 flex items-center space-x-2">
                     <input
                       type="radio"
@@ -139,34 +144,35 @@ export default function Preview(props: { formId: number }) {
                     />
                     <label htmlFor={field.label}>{option}</label>
                   </div>
-                </>
+                </React.Fragment>
               );
             })}
           </div>
         );
 
       case "textarea":
-        return <textarea name={field.label} cols={4} rows={5}></textarea>;
+        return (
+          <textarea
+            name={field.label}
+            cols={4}
+            rows={5}
+            onChange={(e) => saveUserInput(e.target.value)}
+          ></textarea>
+        );
 
       case "multiselect":
         return (
-          <select
-            value={field.value.split(",")}
-            onChange={(e) => {
-              let value = Array.from(
-                e.target.selectedOptions,
-                (option) => option.value
-              );
-              saveUserInput(value.join(","));
+          <Select
+            isMulti
+            onChange={(opt) => {
+              setMultiSelectValues(opt);
+              saveUserInput(opt.map((o) => o.label).join(","));
             }}
-            multiple
-          >
-            {field.options.map((option, index) => (
-              <option key={index} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+            options={field.options.map((option) => {
+              return { label: option, value: option };
+            })}
+            value={multiSelectValues}
+          />
         );
     }
   };
