@@ -45,6 +45,13 @@ export type MultiSelectField = {
   value: string;
 };
 
+export type formFieldKind =
+  | "text"
+  | "dropdown"
+  | "radio"
+  | "textarea"
+  | "multiselect";
+
 export type formField =
   | TextField
   | DropDownField

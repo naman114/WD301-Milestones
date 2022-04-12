@@ -11,6 +11,7 @@ import {
   TextAreaField,
   TextField,
   textFieldTypes,
+  formFieldKind,
 } from "../types/formTypes";
 import LabelledDropdownInput from "./LabelledDropdownInput";
 import LabelledTextAreaInput from "./LabelledTextAreaInput";
@@ -115,6 +116,75 @@ export default function UserForm(props: { formId: number }) {
       clearTimeout(timeout);
     };
   }, [state]);
+
+  type RemoveAction = {
+    type: "remove_field";
+    id: number;
+  };
+
+  type AddAction = {
+    type: "add_field";
+    label: string;
+    kind: formFieldKind;
+  };
+
+  type FormAction = AddAction | RemoveAction;
+
+  // Action Reducer
+  const reducer = (state: FormData, action: FormAction) => {
+    switch (action.type) {
+      case "add_field": {
+        const newField = getNewField(action.kind);
+        return { ...state, formFields: [...state.formFields, newField] };
+      }
+      case "remove_field": {
+        return {
+          ...state,
+          formFields: state.formFields.filter(
+            (field) => field.id !== action.id
+          ),
+        };
+      }
+    }
+  };
+
+  const dispatchAction = (action: FormAction) => {
+    setState((prevState) => {
+      return reducer(prevState, action);
+    });
+  };
+
+  const getNewField = (kind: string) => {
+    switch (kind) {
+      case "text":
+        return {
+          kind: kind,
+          id: Number(new Date()),
+          label: newFieldLabel,
+          fieldType: newFieldType,
+          value: "",
+        };
+
+      case "dropdown":
+      case "radio":
+      case "multiselect":
+        return {
+          kind: kind,
+          id: Number(new Date()),
+          label: newFieldLabel,
+          options: newFieldOptions,
+          value: "",
+        };
+
+      case "textarea":
+        return {
+          kind: kind,
+          id: Number(new Date()),
+          label: newFieldLabel,
+          value: "",
+        };
+    }
+  };
 
   const addField = () => {
     if (
