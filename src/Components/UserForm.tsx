@@ -87,7 +87,7 @@ const saveCurrentForm = (currentForm: FormData) => {
 
 export default function UserForm(props: { formId: number }) {
   const [state, setState] = useState(() => initialState(props.formId));
-  const [newFieldKind, setNewFieldKind] = useState("text");
+  const [newFieldKind, setNewFieldKind] = useState<formFieldKind>("text");
   const [newFieldLabel, setNewFieldLabel] = useState("");
   const [newFieldOptions, setNewFieldOptions] = useState<string[]>([]);
   const [newFieldType, setNewFieldType] = useState("text" as textFieldTypes);
@@ -135,6 +135,13 @@ export default function UserForm(props: { formId: number }) {
     switch (action.type) {
       case "add_field": {
         const newField = getNewField(action.kind);
+        if (
+          action.label === "" ||
+          (["dropdown", "radio", "multiselect"].includes(action.kind) &&
+            newFieldOptions.length === 0)
+        )
+          return state;
+
         return { ...state, formFields: [...state.formFields, newField] };
       }
       case "remove_field": {
@@ -154,7 +161,7 @@ export default function UserForm(props: { formId: number }) {
     });
   };
 
-  const getNewField = (kind: string) => {
+  const getNewField = (kind: string): formField => {
     switch (kind) {
       case "text":
         return {
@@ -184,66 +191,73 @@ export default function UserForm(props: { formId: number }) {
           value: "",
         };
     }
-  };
-
-  const addField = () => {
-    if (
-      newFieldLabel === "" ||
-      (["dropdown", "radio"].includes(newFieldKind) &&
-        newFieldOptions.length === 0)
-    )
-      return;
-
-    let formFieldToAdd:
-      | TextField
-      | DropDownField
-      | RadioField
-      | TextAreaField
-      | MultiSelectField = {
+    return {
       kind: "text",
       id: Number(new Date()),
       label: newFieldLabel,
       fieldType: newFieldType,
       value: "",
     };
-
-    if (
-      newFieldKind === "dropdown" ||
-      newFieldKind === "radio" ||
-      newFieldKind === "multiselect"
-    )
-      formFieldToAdd = {
-        kind: newFieldKind,
-        id: Number(new Date()),
-        label: newFieldLabel,
-        options: newFieldOptions,
-        value: "",
-      };
-
-    if (newFieldKind === "textarea")
-      formFieldToAdd = {
-        kind: newFieldKind,
-        id: Number(new Date()),
-        label: newFieldLabel,
-        value: "",
-      };
-
-    setState({
-      ...state,
-      formFields: [...state.formFields, formFieldToAdd],
-    });
-
-    // Reset the input's value after adding a new field
-    setNewFieldLabel("");
-    setNewFieldOptions([]);
   };
 
-  const removeField = (id: number) => {
-    setState({
-      ...state,
-      formFields: state.formFields.filter((field) => field.id !== id),
-    });
-  };
+  // const addField = () => {
+  //   if (
+  //     newFieldLabel === "" ||
+  //     (["dropdown", "radio"].includes(newFieldKind) &&
+  //       newFieldOptions.length === 0)
+  //   )
+  //     return;
+
+  //   let formFieldToAdd:
+  //     | TextField
+  //     | DropDownField
+  //     | RadioField
+  //     | TextAreaField
+  //     | MultiSelectField = {
+  //     kind: "text",
+  //     id: Number(new Date()),
+  //     label: newFieldLabel,
+  //     fieldType: newFieldType,
+  //     value: "",
+  //   };
+
+  //   if (
+  //     newFieldKind === "dropdown" ||
+  //     newFieldKind === "radio" ||
+  //     newFieldKind === "multiselect"
+  //   )
+  //     formFieldToAdd = {
+  //       kind: newFieldKind,
+  //       id: Number(new Date()),
+  //       label: newFieldLabel,
+  //       options: newFieldOptions,
+  //       value: "",
+  //     };
+
+  //   if (newFieldKind === "textarea")
+  //     formFieldToAdd = {
+  //       kind: newFieldKind,
+  //       id: Number(new Date()),
+  //       label: newFieldLabel,
+  //       value: "",
+  //     };
+
+  //   setState({
+  //     ...state,
+  //     formFields: [...state.formFields, formFieldToAdd],
+  //   });
+
+  //   // Reset the input's value after adding a new field
+  //   setNewFieldLabel("");
+  //   setNewFieldOptions([]);
+  // };
+
+  // const removeField = (id: number) => {
+  //   setState({
+  //     ...state,
+  //     formFields: state.formFields.filter((field) => field.id !== id),
+  //   });
+  // };
 
   const updateInputFieldLabel = (id: number, label: string) => {
     setState({
@@ -380,7 +394,12 @@ export default function UserForm(props: { formId: number }) {
                   value={field.value}
                   kind={inputTypes[field.kind]}
                   updateFieldTypeCB={updateFieldType}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({
+                      type: "remove_field",
+                      id: id,
+                    })
+                  }
                   updateInputFieldLabelCB={updateInputFieldLabel}
                 />
               );
@@ -396,7 +415,12 @@ export default function UserForm(props: { formId: number }) {
                   value={field.value}
                   kind={inputTypes[field.kind]}
                   updateOptionsCB={updateOptions}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({
+                      type: "remove_field",
+                      id: id,
+                    })
+                  }
                   updateInputFieldLabelCB={updateInputFieldLabel}
                 />
               );
@@ -408,7 +432,12 @@ export default function UserForm(props: { formId: number }) {
                   label={field.label}
                   value={field.value}
                   kind={inputTypes[field.kind]}
-                  removeFieldCB={removeField}
+                  removeFieldCB={(id) =>
+                    dispatchAction({
+                      type: "remove_field",
+                      id: id,
+                    })
+                  }
                   updateInputFieldLabelCB={updateInputFieldLabel}
                 />
               );
@@ -419,7 +448,7 @@ export default function UserForm(props: { formId: number }) {
         <select
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
           onChange={(e) => {
-            setNewFieldKind(e.target.value);
+            setNewFieldKind(e.target.value as formFieldKind);
           }}
           value={newFieldKind}
         >
@@ -438,7 +467,13 @@ export default function UserForm(props: { formId: number }) {
         />
         {renderAdditionalInputs()}
         <button
-          onClick={addField}
+          onClick={(_) =>
+            dispatchAction({
+              type: "add_field",
+              label: newFieldLabel,
+              kind: newFieldKind,
+            })
+          }
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Add Field
