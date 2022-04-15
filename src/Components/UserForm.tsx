@@ -4,13 +4,8 @@ import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { parseOptions } from "../utils/formUtils";
 import { Link, navigate } from "raviger";
 import {
-  DropDownField,
   FormData,
   formField,
-  MultiSelectField,
-  RadioField,
-  TextAreaField,
-  TextField,
   textFieldTypes,
   formFieldKind,
 } from "../types/formTypes";
@@ -176,89 +171,95 @@ export default function UserForm(props: { formId: number }) {
           switch (field.kind) {
             case "text":
               return (
-                <LabelledInput
-                  id={field.id}
-                  label={field.label}
-                  fieldType={field.fieldType}
-                  value={field.value}
-                  kind={inputTypes[field.kind]}
-                  updateFieldTypeCB={(id: number, type: textFieldTypes) =>
-                    dispatch({
-                      type: "update_textfield_type",
-                      id: id,
-                      textFieldType: type,
-                    })
-                  }
-                  removeFieldCB={(id) =>
-                    dispatch({
-                      type: "remove_field",
-                      id: id,
-                    })
-                  }
-                  updateInputFieldLabelCB={(id: number, label: string) =>
-                    dispatch({
-                      type: "update_field_label",
-                      id: id,
-                      label: label,
-                    })
-                  }
-                />
+                <React.Fragment key={field.id}>
+                  <LabelledInput
+                    id={field.id}
+                    label={field.label}
+                    fieldType={field.fieldType}
+                    value={field.value}
+                    kind={inputTypes[field.kind]}
+                    updateFieldTypeCB={(id: number, type: textFieldTypes) =>
+                      dispatch({
+                        type: "update_textfield_type",
+                        id: id,
+                        textFieldType: type,
+                      })
+                    }
+                    removeFieldCB={(id) =>
+                      dispatch({
+                        type: "remove_field",
+                        id: id,
+                      })
+                    }
+                    updateInputFieldLabelCB={(id: number, label: string) =>
+                      dispatch({
+                        type: "update_field_label",
+                        id: id,
+                        label: label,
+                      })
+                    }
+                  />
+                </React.Fragment>
               );
 
             case "radio":
             case "multiselect":
             case "dropdown":
               return (
-                <LabelledDropdownInput
-                  id={field.id}
-                  label={field.label}
-                  options={field.options}
-                  value={field.value}
-                  kind={inputTypes[field.kind]}
-                  updateOptionsCB={(id: number, options: string) =>
-                    dispatch({
-                      type: "update_options",
-                      id: id,
-                      options: options,
-                    })
-                  }
-                  removeFieldCB={(id) =>
-                    dispatch({
-                      type: "remove_field",
-                      id: id,
-                    })
-                  }
-                  updateInputFieldLabelCB={(id: number, label: string) =>
-                    dispatch({
-                      type: "update_field_label",
-                      id: id,
-                      label: label,
-                    })
-                  }
-                />
+                <React.Fragment key={field.id}>
+                  <LabelledDropdownInput
+                    id={field.id}
+                    label={field.label}
+                    options={field.options}
+                    value={field.value}
+                    kind={inputTypes[field.kind]}
+                    updateOptionsCB={(id: number, options: string) =>
+                      dispatch({
+                        type: "update_options",
+                        id: id,
+                        options: options,
+                      })
+                    }
+                    removeFieldCB={(id) =>
+                      dispatch({
+                        type: "remove_field",
+                        id: id,
+                      })
+                    }
+                    updateInputFieldLabelCB={(id: number, label: string) =>
+                      dispatch({
+                        type: "update_field_label",
+                        id: id,
+                        label: label,
+                      })
+                    }
+                  />
+                </React.Fragment>
               );
 
             case "textarea":
               return (
-                <LabelledTextAreaInput
-                  id={field.id}
-                  label={field.label}
-                  value={field.value}
-                  kind={inputTypes[field.kind]}
-                  removeFieldCB={(id) =>
-                    dispatch({
-                      type: "remove_field",
-                      id: id,
-                    })
-                  }
-                  updateInputFieldLabelCB={(id: number, label: string) =>
-                    dispatch({
-                      type: "update_field_label",
-                      id: id,
-                      label: label,
-                    })
-                  }
-                />
+                <React.Fragment key={field.id}>
+                  <LabelledTextAreaInput
+                    id={field.id}
+                    label={field.label}
+                    value={field.value}
+                    kind={inputTypes[field.kind]}
+                    removeFieldCB={(id) =>
+                      dispatch({
+                        type: "remove_field",
+                        id: id,
+                      })
+                    }
+                    updateInputFieldLabelCB={(id: number, label: string) =>
+                      dispatch({
+                        type: "update_field_label",
+                        id: id,
+                        label: label,
+                      })
+                    }
+                  />
+                </React.Fragment>
               );
           }
         })}
@@ -286,15 +287,17 @@ export default function UserForm(props: { formId: number }) {
         />
         {renderAdditionalInputs()}
         <button
-          onClick={(_) =>
+          onClick={(_) => {
             dispatch({
               type: "add_field",
               label: newFieldLabel,
               kind: newFieldKind,
               fieldType: newFieldType,
               options: newFieldOptions,
-            })
-          }
+            });
+            setNewFieldLabel("");
+            setNewFieldOptions([]);
+          }}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Add Field

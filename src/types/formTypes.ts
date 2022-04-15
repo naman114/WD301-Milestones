@@ -58,8 +58,3 @@ export type formField =
   | RadioField
   | TextAreaField
   | MultiSelectField;
-
-export type FormResponse = {
-  id: number;
-  formData: FormData;
-};

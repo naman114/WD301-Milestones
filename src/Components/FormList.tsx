@@ -1,15 +1,23 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import { Link, useQueryParams } from "raviger";
 import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { reducer } from "../actions/formListActions";
+import { FormListState } from "../types/formListTypes";
+
+const initialState = (): FormListState => {
+  return {
+    formData: getLocalForms(),
+    searchString: "",
+  };
+};
 
 export default function FormList() {
   const [{ search }, setQueryParams] = useQueryParams();
-  const [searchString, setSearchString] = useState("");
-  const [state, dispatch] = useReducer(reducer, null, () => getLocalForms());
+  // const [searchString, setSearchString] = useState("");
+  const [state, dispatch] = useReducer(reducer, null, () => initialState());
 
   useEffect(() => {
-    saveLocalForms(state);
+    saveLocalForms(state.formData);
   }, [state]);
 
   return (
@@ -18,7 +26,7 @@ export default function FormList() {
         className="flex justify-center"
         onSubmit={(e) => {
           e.preventDefault();
-          setQueryParams({ search: searchString });
+          setQueryParams({ search: state.searchString });
         }}
       >
         <input
@@ -26,9 +34,12 @@ export default function FormList() {
           type="text"
           name="search"
           placeholder="Enter string to search"
-          value={searchString}
+          value={state.searchString}
           onChange={(e) => {
-            setSearchString(e.target.value);
+            dispatch({
+              type: "save_search_string",
+              searchString: e.target.value,
+            });
           }}
         />
         <input
@@ -38,7 +49,7 @@ export default function FormList() {
         />
       </form>
       <div className="space-y-3">
-        {state
+        {state.formData
           .filter((form) =>
             form.title.toLowerCase().includes(search?.toLowerCase() || "")
           )

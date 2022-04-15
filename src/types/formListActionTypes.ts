@@ -3,4 +3,9 @@ export type RemoveAction = {
   id: number;
 };
 
-export type FormListAction = RemoveAction;
+export type SaveSearchString = {
+  type: "save_search_string";
+  searchString: string;
+};
+
+export type FormListAction = RemoveAction | SaveSearchString;

@@ -1,4 +1,4 @@
-import { FormResponse } from "../types/formTypes";
+import { FormResponse } from "../types/previewTypes";
 import { PreviewAction } from "../types/previewActionTypes";
 
 export const reducer = (state: FormResponse, action: PreviewAction) => {
@@ -17,6 +17,33 @@ export const reducer = (state: FormResponse, action: PreviewAction) => {
             return field;
           }),
         },
+      };
+    }
+    case "save_multiselect_values": {
+      return {
+        ...state,
+        multiSelectValues: action.options,
+      };
+    }
+    case "save_current_question": {
+      return {
+        ...state,
+        questionId: action.questionId,
+        multiSelectValues: state.formData.formFields
+          .find((formField) => {
+            return formField.id === action.questionId;
+          })!
+          .value.split(",")
+          .filter((i) => i)
+          .map((o) => {
+            return { value: o, label: o };
+          }),
+      };
+    }
+    case "save_submission_status": {
+      return {
+        ...state,
+        isSubmitted: action.isSubmitted,
       };
     }
   }
