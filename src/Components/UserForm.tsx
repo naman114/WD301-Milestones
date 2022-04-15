@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import LabelledInput from "./LabelledInput";
 import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
+import { parseOptions } from "../utils/formUtils";
 import { Link, navigate } from "raviger";
 import {
   DropDownField,
@@ -15,8 +16,9 @@ import {
 } from "../types/formTypes";
 import LabelledDropdownInput from "./LabelledDropdownInput";
 import LabelledTextAreaInput from "./LabelledTextAreaInput";
+import { reducer } from "../actions/formActions";
 
-const initialFormFields: formField[] = [
+export const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "Name", fieldType: "text", value: "" },
   { kind: "text", id: 3, label: "Email", fieldType: "email", value: "" },
   { kind: "text", id: 4, label: "Date of Birth", fieldType: "date", value: "" },
@@ -83,185 +85,6 @@ const saveCurrentForm = (currentForm: FormData) => {
     return form;
   });
   saveLocalForms(updatedForms);
-};
-
-const parseOptions = (options: string) => options.split(",");
-
-type RemoveAction = {
-  type: "remove_field";
-  id: number;
-};
-
-type AddAction = {
-  type: "add_field";
-  label: string;
-  kind: formFieldKind;
-  fieldType: textFieldTypes;
-  options: string[];
-};
-
-type UpdateTitleAction = {
-  type: "update_title";
-  title: string;
-};
-
-type UpdateFieldLabel = {
-  type: "update_field_label";
-  id: number;
-  label: string;
-};
-
-type UpdateTextFieldType = {
-  type: "update_textfield_type";
-  id: number;
-  textFieldType: textFieldTypes;
-};
-
-type UpdateOptions = {
-  type: "update_options";
-  id: number;
-  options: string;
-};
-
-type ResetForm = {
-  type: "reset_form";
-};
-
-type FormAction =
-  | AddAction
-  | RemoveAction
-  | UpdateTitleAction
-  | UpdateFieldLabel
-  | UpdateTextFieldType
-  | UpdateOptions
-  | ResetForm;
-
-// Action Reducer
-const reducer = (state: FormData, action: FormAction) => {
-  switch (action.type) {
-    case "add_field": {
-      const newField = getNewField(
-        action.kind,
-        action.label,
-        action.fieldType,
-        action.options
-      );
-      if (
-        action.label === "" ||
-        (["dropdown", "radio", "multiselect"].includes(action.kind) &&
-          action.options.length === 0)
-      )
-        return state;
-
-      return { ...state, formFields: [...state.formFields, newField] };
-    }
-    case "remove_field": {
-      return {
-        ...state,
-        formFields: state.formFields.filter((field) => field.id !== action.id),
-      };
-    }
-    case "update_title": {
-      return {
-        ...state,
-        title: action.title,
-      };
-    }
-    case "update_field_label": {
-      return {
-        ...state,
-        formFields: state.formFields.map((field) => {
-          if (field.id === action.id) {
-            return {
-              ...field,
-              label: action.label,
-            };
-          }
-          return field;
-        }),
-      };
-    }
-
-    case "update_textfield_type": {
-      return {
-        ...state,
-        formFields: state.formFields.map((field) => {
-          if (field.id === action.id) {
-            return {
-              ...field,
-              fieldType: action.textFieldType,
-            };
-          }
-          return field;
-        }),
-      };
-    }
-    case "update_options": {
-      return {
-        ...state,
-        formFields: state.formFields.map((field) => {
-          if (field.id === action.id) {
-            return {
-              ...field,
-              options: parseOptions(action.options),
-            };
-          }
-          return field;
-        }),
-      };
-    }
-    case "reset_form": {
-      return {
-        ...state,
-        title: "Untitled Form",
-        formFields: initialFormFields,
-      };
-    }
-  }
-};
-
-const getNewField = (
-  kind: string,
-  label: string,
-  fieldType: textFieldTypes,
-  options: string[]
-): formField => {
-  switch (kind) {
-    case "text":
-      return {
-        kind: kind,
-        id: Number(new Date()),
-        label: label,
-        fieldType: fieldType,
-        value: "",
-      };
-
-    case "dropdown":
-    case "radio":
-    case "multiselect":
-      return {
-        kind: kind,
-        id: Number(new Date()),
-        label: label,
-        options: options,
-        value: "",
-      };
-
-    case "textarea":
-      return {
-        kind: kind,
-        id: Number(new Date()),
-        label: label,
-        value: "",
-      };
-  }
-  return {
-    kind: "text",
-    id: Number(new Date()),
-    label: label,
-    fieldType: fieldType,
-    value: "",
-  };
 };
 
 export default function UserForm(props: { formId: number }) {
