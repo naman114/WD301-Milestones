@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useReducer } from "react";
 import { Link, useQueryParams } from "raviger";
-import { FormData, formField } from "../types/formTypes";
 import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { reducer } from "../actions/formListActions";
 
@@ -12,10 +11,6 @@ export default function FormList() {
   useEffect(() => {
     saveLocalForms(state);
   }, [state]);
-
-  // const removeForm = (id: number) => {
-  //   setState(state.filter((form) => form.id !== id));
-  // };
 
   return (
     <div className="flex flex-col gap-5 divide-y-2 divide-dotted">

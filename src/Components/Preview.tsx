@@ -1,9 +1,10 @@
 import { Link } from "raviger";
-import React, { useState } from "react";
+import React, { useReducer, useState } from "react";
 import { getLocalForms } from "../utils/storageUtils";
 import { FormResponse, TextField } from "../types/formTypes";
 import Select from "react-select";
 import { MultiValue } from "react-select";
+import { reducer } from "../actions/previewActions";
 
 const initialState = (formId: number): FormResponse => {
   const savedForms = getLocalForms();
@@ -29,7 +30,9 @@ const saveFormResponse = (response: FormResponse) => {
 };
 
 export default function Preview(props: { formId: number }) {
-  const [state, setState] = useState(() => initialState(props.formId));
+  const [state, dispatch] = useReducer(reducer, null, () =>
+    initialState(props.formId)
+  );
   const [multiSelectValues, setMultiSelectValues] = useState<
     MultiValue<{ value: string; label: string }>
   >([]);
@@ -76,23 +79,6 @@ export default function Preview(props: { formId: number }) {
     setQuestionId(state.formData.formFields[index + 1].id);
   };
 
-  const saveUserInput = (value: string) => {
-    setState({
-      ...state,
-      formData: {
-        ...state.formData,
-        formFields: state.formData.formFields.map((field) => {
-          if (field.id === questionId)
-            return {
-              ...field,
-              value,
-            };
-          return field;
-        }),
-      },
-    });
-  };
-
   const renderQuestion = () => {
     const field = state.formData.formFields.find(
       (field) => field.id === questionId
@@ -108,7 +94,11 @@ export default function Preview(props: { formId: number }) {
                 ?.value
             }
             onChange={(e) => {
-              saveUserInput(e.target.value);
+              dispatch({
+                type: "save_user_input",
+                value: e.target.value,
+                questionId,
+              });
             }}
           />
         );
@@ -117,7 +107,11 @@ export default function Preview(props: { formId: number }) {
           <select
             value={field.value}
             onChange={(e) => {
-              saveUserInput(e.target.value);
+              dispatch({
+                type: "save_user_input",
+                value: e.target.value,
+                questionId,
+              });
             }}
           >
             <option value="">Select an option</option>
@@ -140,7 +134,13 @@ export default function Preview(props: { formId: number }) {
                       type="radio"
                       name={field.label}
                       value={option}
-                      onChange={(e) => saveUserInput(e.target.value)}
+                      onChange={(e) =>
+                        dispatch({
+                          type: "save_user_input",
+                          value: e.target.value,
+                          questionId,
+                        })
+                      }
                     />
                     <label htmlFor={field.label}>{option}</label>
                   </div>
@@ -156,7 +156,13 @@ export default function Preview(props: { formId: number }) {
             name={field.label}
             cols={4}
             rows={5}
-            onChange={(e) => saveUserInput(e.target.value)}
+            onChange={(e) =>
+              dispatch({
+                type: "save_user_input",
+                value: e.target.value,
+                questionId,
+              })
+            }
           ></textarea>
         );
 
@@ -166,7 +172,11 @@ export default function Preview(props: { formId: number }) {
             isMulti
             onChange={(opt) => {
               setMultiSelectValues(opt);
-              saveUserInput(opt.map((o) => o.label).join(","));
+              dispatch({
+                type: "save_user_input",
+                value: opt.map((o) => o.label).join(","),
+                questionId,
+              });
             }}
             options={field.options.map((option) => {
               return { label: option, value: option };
