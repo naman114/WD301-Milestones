@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useReducer } from "react";
 import { Link, useQueryParams } from "raviger";
 import { FormData, formField } from "../types/formTypes";
 import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
+import { reducer } from "../actions/formListActions";
 
 export default function FormList() {
   const [{ search }, setQueryParams] = useQueryParams();
   const [searchString, setSearchString] = useState("");
-  const [state, setState] = useState(() => getLocalForms());
+  const [state, dispatch] = useReducer(reducer, null, () => getLocalForms());
 
   useEffect(() => {
     saveLocalForms(state);
   }, [state]);
 
-  const removeForm = (id: number) => {
-    setState(state.filter((form) => form.id !== id));
-  };
+  // const removeForm = (id: number) => {
+  //   setState(state.filter((form) => form.id !== id));
+  // };
 
   return (
     <div className="flex flex-col gap-5 divide-y-2 divide-dotted">
@@ -74,7 +75,9 @@ export default function FormList() {
                   <button
                     type="button"
                     className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    onClick={(_) => removeForm(form.id)}
+                    onClick={(_) =>
+                      dispatch({ type: "remove_form", id: form.id })
+                    }
                   >
                     Delete
                   </button>
