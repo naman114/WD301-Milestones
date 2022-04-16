@@ -1,8 +1,10 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Link, useQueryParams } from "raviger";
 import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { reducer } from "../actions/formListActions";
 import { FormListState } from "../types/formListTypes";
+import Modal from "../common/Modal";
+import CreateForm from "./CreateForm";
 
 const initialState = (): FormListState => {
   return {
@@ -15,6 +17,8 @@ export default function FormList() {
   const [{ search }, setQueryParams] = useQueryParams();
   // const [searchString, setSearchString] = useState("");
   const [state, dispatch] = useReducer(reducer, null, () => initialState());
+
+  const [newForm, setNewForm] = useState(false);
 
   useEffect(() => {
     saveLocalForms(state.formData);
@@ -93,13 +97,14 @@ export default function FormList() {
           ))}
       </div>
       <div className="flex space-x-2">
-        <Link
-          type="button"
+        <button
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          href={"/forms/0"}
+          onClick={(_) => {
+            setNewForm(true);
+          }}
         >
           Add New Form
-        </Link>
+        </button>
         <Link
           href="/"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
@@ -107,6 +112,9 @@ export default function FormList() {
           Close
         </Link>
       </div>
+      <Modal open={newForm} closeCB={() => setNewForm(false)}>
+        <CreateForm />
+      </Modal>
     </div>
   );
 }
