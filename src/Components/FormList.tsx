@@ -5,6 +5,9 @@ import { reducer } from "../actions/formListActions";
 import { FormListState } from "../types/formListTypes";
 import Modal from "../common/Modal";
 import CreateForm from "./CreateForm";
+import { listForms } from "../utils/apiUtils";
+import { Pagination } from "../types/common";
+import { Form } from "../types/formTypes";
 
 const initialState = (): FormListState => {
   return {
@@ -13,16 +16,29 @@ const initialState = (): FormListState => {
   };
 };
 
+const fetchForms = async (setFormsCB: (value: Form[]) => void) => {
+  try {
+    const data: Pagination<Form> = await listForms({ offset: 1, limit: 2 });
+    setFormsCB(data.results);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export default function FormList() {
   const [{ search }, setQueryParams] = useQueryParams();
-  // const [searchString, setSearchString] = useState("");
   const [state, dispatch] = useReducer(reducer, null, () => initialState());
-
+  const [forms, setForms] = useState<Form[]>([]);
   const [newForm, setNewForm] = useState(false);
 
   useEffect(() => {
     saveLocalForms(state.formData);
   }, [state]);
+
+  useEffect(() => {
+    fetchForms(setForms);
+  }, []);
 
   return (
     <div className="flex flex-col gap-5 divide-y-2 divide-dotted">
@@ -53,7 +69,7 @@ export default function FormList() {
         />
       </form>
       <div className="space-y-3">
-        {state.formData
+        {forms
           .filter((form) =>
             form.title.toLowerCase().includes(search?.toLowerCase() || "")
           )
@@ -63,7 +79,7 @@ export default function FormList() {
                 <div className="flex flex-col py-1">
                   <p className=" text-lg ">{form.title}</p>
                   <p className=" text-slate-700 ">
-                    {form.formFields.length} Questions
+                    {/* {form.formFields.length} Questions */}
                   </p>
                 </div>
 
@@ -86,7 +102,7 @@ export default function FormList() {
                     type="button"
                     className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     onClick={(_) =>
-                      dispatch({ type: "remove_form", id: form.id })
+                      dispatch({ type: "remove_form", id: form.id! })
                     }
                   >
                     Delete

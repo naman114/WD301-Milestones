@@ -1,3 +1,4 @@
+import { PaginationParams } from "../types/common";
 import { Form } from "../types/formTypes";
 
 const API_BASE_URL = "https://tsapi.coronasafe.live/api";
@@ -24,9 +25,6 @@ export const request = async (
     url = `${API_BASE_URL}${endpoint}`;
     payload = data ? JSON.stringify(data) : "";
   }
-
-  // Basic Auth Credentials
-  // const auth = "Basic " + window.btoa("naman114:Efm%ivAaK%ounWsW5VW%ZkN3EX");
 
   // Token Authentication
   const token = localStorage.getItem("token");
@@ -60,4 +58,8 @@ export const me = () => {
 
 export const createForm = (form: Form) => {
   return request("/forms/", "POST", form);
+};
+
+export const listForms = (pageParams: PaginationParams) => {
+  return request("/forms/", "GET", pageParams);
 };
