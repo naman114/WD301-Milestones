@@ -1,12 +1,17 @@
 // Parent Wrapper Component
 import React from "react";
+import { User } from "../types/userTypes";
 import Header from "./Header";
 
-export default function AppContainer(props: { children: React.ReactNode }) {
+export default function AppContainer(props: {
+  currentUser: User;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex h-screen items-center bg-gray-100">
       <div className="mx-auto w-full max-w-3xl rounded-xl bg-white p-4 shadow-lg">
         <Header
+          currentUser={props.currentUser}
           title={"Welcome to Lesson 5 of $react-typescript with #tailwindcss"}
         />
         {props.children}
