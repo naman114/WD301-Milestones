@@ -48,8 +48,8 @@ export default function FormList() {
   }, []);
 
   const handleDeleteForm = async (id: number) => {
-    await deleteForm(id);
     dispatch({ type: "remove_form", id });
+    await deleteForm(id);
   };
   return (
     <div className="flex flex-col gap-5 divide-y-2 divide-dotted">

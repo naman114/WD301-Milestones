@@ -1,5 +1,5 @@
-import React from "react";
-import { textFieldTypes } from "../types/formTypes";
+import React, { useEffect, useState } from "react";
+import { parseOptions } from "../utils/formUtils";
 
 export default function LabelledDropdownInput(props: {
   id: number;
@@ -11,6 +11,31 @@ export default function LabelledDropdownInput(props: {
   removeFieldCB: (id: number) => void;
   updateInputFieldLabelCB: (id: number, label: string) => void;
 }) {
+  const [label, setLabel] = useState(props.label);
+  const [options, setOptions] = useState(props.options);
+
+  useEffect(() => {
+    if (label === props.label) return;
+
+    let timeout = setTimeout(() => {
+      props.updateInputFieldLabelCB(props.id, label);
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [label]);
+
+  useEffect(() => {
+    if (options === props.options) return;
+
+    let timeout = setTimeout(() => {
+      props.updateOptionsCB(props.id, options.join(","));
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [options]);
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -19,17 +44,17 @@ export default function LabelledDropdownInput(props: {
         </p>
         <input
           type="text"
-          value={props.label}
+          value={label}
           onChange={(e) => {
-            props.updateInputFieldLabelCB(props.id, e.target.value);
+            setLabel(e.target.value);
           }}
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
         />
         <input
           type="text"
-          value={props.options}
+          value={options}
           onChange={(e) => {
-            props.updateOptionsCB(props.id, e.target.value);
+            setOptions(parseOptions(e.target.value));
           }}
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
         />

@@ -8,10 +8,25 @@ import {
   formField,
   textFieldTypes,
   formFieldKind,
+  validateField,
+  Errors,
+  createFormField,
+  receivedFormField,
+  updateFormField,
+  receivedForm,
 } from "../types/formTypes";
 import LabelledDropdownInput from "./LabelledDropdownInput";
 import LabelledTextAreaInput from "./LabelledTextAreaInput";
 import { reducer } from "../actions/formActions";
+import { Pagination } from "../types/common";
+import {
+  createField,
+  deleteFormField,
+  getForm,
+  getFormFields,
+  patchForm,
+  patchFormField,
+} from "../utils/apiUtils";
 
 export const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "Name", fieldType: "text", value: "" },
@@ -55,22 +70,13 @@ const inputTypes = {
 };
 
 const initialState = (formId: number): FormData => {
-  if (formId === 0) {
-    const newForm = {
-      id: Number(new Date()),
-      title: "Untitled Form",
-      formFields: initialFormFields,
-    };
+  const newForm: FormData = {
+    id: Number(new Date()),
+    title: "Untitled Form",
+    formFields: [],
+  };
 
-    // Save newly added form to local storage
-    const savedForms = getLocalForms();
-    saveLocalForms([...savedForms, newForm]);
-
-    return newForm;
-  }
-
-  const savedForms = getLocalForms();
-  return savedForms.filter((form) => form.id === formId)[0];
+  return newForm;
 };
 
 const saveCurrentForm = (currentForm: FormData) => {
@@ -91,15 +97,22 @@ export default function UserForm(props: { formId: number }) {
   const [newFieldOptions, setNewFieldOptions] = useState<string[]>([]);
   const [newFieldType, setNewFieldType] = useState("text" as textFieldTypes);
   const titleRef = useRef<HTMLInputElement>(null);
+  const [errors, setErrors] = useState<Errors<formField>>({});
+  // console.log(props.formId);
+  // useEffect(() => {
+  //   state.id !== props.formId && navigate(`/forms/${state.id}`);
+  // }, [state.id, props.formId]);
 
-  useEffect(() => {
-    state.id !== props.formId && navigate(`/forms/${state.id}`);
-  }, [state.id, props.formId]);
+  const fetchTitle = async () => {
+    const data: receivedForm = await getForm(props.formId);
+    dispatch({ type: "update_title", title: data.title });
+  };
 
   useEffect(() => {
     console.log("Component is mounted");
     document.title = "User Form";
     titleRef.current?.focus();
+    fetchTitle();
     return () => {
       document.title = "React App";
     };
@@ -107,14 +120,187 @@ export default function UserForm(props: { formId: number }) {
 
   useEffect(() => {
     let timeout = setTimeout(() => {
-      saveCurrentForm(state);
-      console.log("saving to local storage");
+      patchForm(props.formId, { title: state.title });
     }, 1000);
-
     return () => {
       clearTimeout(timeout);
     };
-  }, [state]);
+  }, [state.title]);
+
+  const fetchFormFields = async () => {
+    try {
+      const data: Pagination<receivedFormField> = await getFormFields(
+        props.formId
+      );
+      convertResponsePayload(data.results);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFormFields();
+  }, []);
+
+  const handleSubmit = async () => {
+    dispatch({
+      type: "add_field",
+      label: newFieldLabel,
+      kind: newFieldKind,
+      fieldType: newFieldType,
+      options: newFieldOptions,
+    });
+    setNewFieldLabel("");
+    setNewFieldOptions([]);
+
+    const field: formField = {
+      kind: newFieldKind,
+      label: newFieldLabel,
+      options: newFieldOptions,
+      fieldType: newFieldType,
+      id: Number(new Date()),
+      value: "",
+    };
+
+    const fieldRequestPayload: createFormField = cleanRequestPayload(field);
+
+    const validationErrors = validateField(fieldRequestPayload);
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length === 0) {
+      try {
+        const data = await createField(props.formId, fieldRequestPayload);
+        console.log(data);
+        console.log("hello");
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  const cleanRequestPayload = (field: any): createFormField => {
+    const validationErrors = validateField(field);
+    setErrors(validationErrors);
+
+    switch (field.kind) {
+      case "text":
+        return {
+          label: field.label,
+          kind: "TEXT",
+          meta: {
+            textFieldType: field.fieldType,
+          },
+        };
+      case "dropdown":
+        return {
+          label: field.label,
+          kind: "DROPDOWN",
+          options: field.options,
+        };
+      case "radio":
+        return {
+          label: field.label,
+          kind: "RADIO",
+          options: field.options,
+        };
+      case "textarea":
+        return {
+          label: field.label,
+          kind: "GENERIC",
+          meta: {
+            kind: "textarea",
+          },
+        };
+      case "multiselect":
+        return {
+          label: field.label,
+          kind: "GENERIC",
+          meta: {
+            kind: "multiselect",
+          },
+          options: field.options,
+        };
+    }
+
+    return {
+      label: field.label,
+      kind: "TEXT",
+      meta: {
+        textFieldType: field.fieldType,
+      },
+    };
+  };
+
+  const convertResponsePayload = (fields: receivedFormField[]) => {
+    const convertedFields: formField[] = fields.map((field) =>
+      conversionHelper(field)
+    );
+
+    // Sort the fields by id (in order of creation)
+    // Comparator asks: Should I swap them?
+    convertedFields.sort((field1: formField, field2: formField) =>
+      field1.id < field2.id ? -1 : 1
+    );
+    console.log(convertedFields);
+
+    dispatch({ type: "populate_form_fields", fields: convertedFields });
+  };
+
+  const conversionHelper = (field: receivedFormField): formField => {
+    switch (field.kind) {
+      case "TEXT":
+        return {
+          id: field.id,
+          kind: "text",
+          label: field.label,
+          fieldType: field.meta?.textFieldType as textFieldTypes,
+          value: "",
+        };
+      case "DROPDOWN":
+        return {
+          id: field.id,
+          kind: "dropdown",
+          label: field.label,
+          options: field.options!,
+          value: "",
+        };
+      case "RADIO":
+        return {
+          id: field.id,
+          kind: "radio",
+          label: field.label,
+          options: field.options!,
+          value: "",
+        };
+      case "GENERIC": {
+        switch (field.meta?.kind) {
+          case "textarea":
+            return {
+              id: field.id,
+              kind: "textarea",
+              label: field.label,
+              value: "",
+            };
+          case "multiselect":
+            return {
+              id: field.id,
+              kind: "multiselect",
+              label: field.label,
+              options: field.options!,
+              value: "",
+            };
+        }
+      }
+    }
+
+    return {
+      id: field.id,
+      kind: "text",
+      label: field.label,
+      fieldType: field.meta?.textFieldType as textFieldTypes,
+      value: "",
+    };
+  };
 
   const renderAdditionalInputs = () => {
     switch (newFieldKind) {
@@ -178,26 +364,35 @@ export default function UserForm(props: { formId: number }) {
                     fieldType={field.fieldType}
                     value={field.value}
                     kind={inputTypes[field.kind]}
-                    updateFieldTypeCB={(id: number, type: textFieldTypes) =>
+                    updateFieldTypeCB={(id: number, type: textFieldTypes) => {
                       dispatch({
                         type: "update_textfield_type",
                         id: id,
                         textFieldType: type,
-                      })
-                    }
-                    removeFieldCB={(id) =>
+                      });
+                      patchFormField(props.formId, id, {
+                        meta: {
+                          textFieldType: type,
+                        },
+                      });
+                    }}
+                    removeFieldCB={(id) => {
                       dispatch({
                         type: "remove_field",
                         id: id,
-                      })
-                    }
-                    updateInputFieldLabelCB={(id: number, label: string) =>
+                      });
+                      deleteFormField(props.formId, id);
+                    }}
+                    updateInputFieldLabelCB={(id: number, label: string) => {
                       dispatch({
                         type: "update_field_label",
                         id: id,
                         label: label,
-                      })
-                    }
+                      });
+                      patchFormField(props.formId, id, {
+                        label,
+                      });
+                    }}
                   />
                 </React.Fragment>
               );
@@ -213,26 +408,33 @@ export default function UserForm(props: { formId: number }) {
                     options={field.options}
                     value={field.value}
                     kind={inputTypes[field.kind]}
-                    updateOptionsCB={(id: number, options: string) =>
+                    updateOptionsCB={(id: number, options: string) => {
                       dispatch({
                         type: "update_options",
                         id: id,
                         options: options,
-                      })
-                    }
-                    removeFieldCB={(id) =>
+                      });
+                      patchFormField(props.formId, id, {
+                        options: parseOptions(options),
+                      });
+                    }}
+                    removeFieldCB={(id) => {
                       dispatch({
                         type: "remove_field",
                         id: id,
-                      })
-                    }
-                    updateInputFieldLabelCB={(id: number, label: string) =>
+                      });
+                      deleteFormField(props.formId, id);
+                    }}
+                    updateInputFieldLabelCB={(id: number, label: string) => {
                       dispatch({
                         type: "update_field_label",
                         id: id,
                         label: label,
-                      })
-                    }
+                      });
+                      patchFormField(props.formId, id, {
+                        label,
+                      });
+                    }}
                   />
                 </React.Fragment>
               );
@@ -251,13 +453,16 @@ export default function UserForm(props: { formId: number }) {
                         id: id,
                       })
                     }
-                    updateInputFieldLabelCB={(id: number, label: string) =>
+                    updateInputFieldLabelCB={(id: number, label: string) => {
                       dispatch({
                         type: "update_field_label",
                         id: id,
                         label: label,
-                      })
-                    }
+                      });
+                      patchFormField(props.formId, id, {
+                        label,
+                      });
+                    }}
                   />
                 </React.Fragment>
               );
@@ -288,15 +493,7 @@ export default function UserForm(props: { formId: number }) {
         {renderAdditionalInputs()}
         <button
           onClick={(_) => {
-            dispatch({
-              type: "add_field",
-              label: newFieldLabel,
-              kind: newFieldKind,
-              fieldType: newFieldType,
-              options: newFieldOptions,
-            });
-            setNewFieldLabel("");
-            setNewFieldOptions([]);
+            handleSubmit();
           }}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
@@ -304,19 +501,6 @@ export default function UserForm(props: { formId: number }) {
         </button>
       </div>
       <div className="flex space-x-2">
-        <button
-          type="submit"
-          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          onClick={(_) => saveCurrentForm(state)}
-        >
-          Save
-        </button>
-        <button
-          onClick={() => dispatch({ type: "reset_form" })}
-          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-          Reset
-        </button>
         <Link
           href={`/preview/${props.formId}`}
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

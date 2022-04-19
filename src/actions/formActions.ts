@@ -76,11 +76,10 @@ export const reducer = (state: FormData, action: FormAction) => {
         }),
       };
     }
-    case "reset_form": {
+    case "populate_form_fields": {
       return {
         ...state,
-        title: "Untitled Form",
-        formFields: initialFormFields,
+        formFields: action.fields,
       };
     }
   }

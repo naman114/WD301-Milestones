@@ -13,6 +13,29 @@ export type Form = {
   is_public?: boolean;
 };
 
+export type receivedForm = {
+  id: number;
+  title: string;
+  description: string;
+  is_public: boolean;
+  created_by: number;
+  created_date: string;
+  modified_date: string;
+};
+
+export type updateForm = Partial<Form>;
+
+export type createFormField = {
+  label: string;
+  kind: "TEXT" | "DROPDOWN" | "RADIO" | "GENERIC";
+  options?: string[];
+  meta?: { textFieldType?: string; kind?: string };
+};
+
+export type updateFormField = Partial<createFormField>;
+
+export type receivedFormField = createFormField & { id: number };
+
 export type ReceivedForm = Overwrite<Form, { id: number }>;
 
 export type Errors<T> = Partial<Record<keyof T, string>>;
@@ -24,6 +47,17 @@ export const validateForm = (form: Form) => {
   }
   if (form.title.length > 100) {
     errors.title = "Title must be less than 100 characters";
+  }
+  return errors;
+};
+
+export const validateField = (field: any) => {
+  const errors: Errors<formField> = {};
+  if (field.label.length < 1) {
+    errors.label = "Field is required";
+  }
+  if (field.label.length > 100) {
+    errors.label = "Field must be less than 100 characters";
   }
   return errors;
 };

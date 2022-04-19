@@ -1,5 +1,4 @@
-import React from "react";
-import { textFieldTypes } from "../types/formTypes";
+import React, { useEffect, useState } from "react";
 
 export default function LabelledTextAreaInput(props: {
   id: number;
@@ -9,6 +8,19 @@ export default function LabelledTextAreaInput(props: {
   removeFieldCB: (id: number) => void;
   updateInputFieldLabelCB: (id: number, label: string) => void;
 }) {
+  const [label, setLabel] = useState(props.label);
+
+  useEffect(() => {
+    if (label === props.label) return;
+
+    let timeout = setTimeout(() => {
+      props.updateInputFieldLabelCB(props.id, label);
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [label]);
+
   return (
     <>
       <div className="flex items-center gap-2">
@@ -17,9 +29,9 @@ export default function LabelledTextAreaInput(props: {
         </p>
         <input
           type="text"
-          value={props.label}
+          value={label}
           onChange={(e) => {
-            props.updateInputFieldLabelCB(props.id, e.target.value);
+            setLabel(e.target.value);
           }}
           className="focus:border-blueGray-500 focus:shadow-outline my-2 flex flex-1 transform rounded-lg border-2 border-gray-200 bg-gray-100 p-2 ring-offset-2 ring-offset-current transition duration-500 ease-in-out focus:bg-white focus:outline-none focus:ring-2"
         />

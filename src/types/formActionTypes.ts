@@ -1,4 +1,4 @@
-import { textFieldTypes, formFieldKind } from "../types/formTypes";
+import { textFieldTypes, formFieldKind, formField } from "../types/formTypes";
 
 export type RemoveAction = {
   type: "remove_field";
@@ -36,8 +36,9 @@ export type UpdateOptions = {
   options: string;
 };
 
-export type ResetForm = {
-  type: "reset_form";
+export type PopulateFormFields = {
+  type: "populate_form_fields";
+  fields: formField[];
 };
 
 export type FormAction =
@@ -47,4 +48,4 @@ export type FormAction =
   | UpdateFieldLabel
   | UpdateTextFieldType
   | UpdateOptions
-  | ResetForm;
+  | PopulateFormFields;
