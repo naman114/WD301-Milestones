@@ -40,7 +40,10 @@ export const request = async (
   });
 
   if (response.ok) {
-    const json = await response.json();
+    const isJson = response.headers
+      .get("content-type")
+      ?.includes("application/json");
+    const json = isJson ? await response.json() : null;
     return json;
   } else {
     const errorJson = await response.json();
@@ -62,4 +65,8 @@ export const createForm = (form: Form) => {
 
 export const listForms = (pageParams: PaginationParams) => {
   return request("/forms/", "GET", pageParams);
+};
+
+export const deleteForm = (id: number) => {
+  return request(`/forms/${id}`, "DELETE");
 };

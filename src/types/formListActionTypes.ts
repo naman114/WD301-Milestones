@@ -1,3 +1,10 @@
+import { FormListState } from "../types/formListTypes";
+
+export type PopulateFormList = {
+  type: "populate_form_list";
+  forms: FormListState;
+};
+
 export type RemoveAction = {
   type: "remove_form";
   id: number;
@@ -8,4 +15,4 @@ export type SaveSearchString = {
   searchString: string;
 };
 
-export type FormListAction = RemoveAction | SaveSearchString;
+export type FormListAction = PopulateFormList | RemoveAction | SaveSearchString;

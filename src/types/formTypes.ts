@@ -1,3 +1,5 @@
+import { Overwrite } from "./common";
+
 export type FormData = {
   id: number;
   title: string;
@@ -11,7 +13,9 @@ export type Form = {
   is_public?: boolean;
 };
 
-export type Errors<T> = Partial<Record<keyof Form, string>>;
+export type ReceivedForm = Overwrite<Form, { id: number }>;
+
+export type Errors<T> = Partial<Record<keyof T, string>>;
 
 export const validateForm = (form: Form) => {
   const errors: Errors<Form> = {};
