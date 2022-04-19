@@ -46,5 +46,20 @@ export const reducer = (state: FormResponse, action: PreviewAction) => {
         isSubmitted: action.isSubmitted,
       };
     }
+    case "populate_form_fields": {
+      return {
+        ...state,
+        formData: {
+          ...state.formData,
+          formFields: action.fields,
+        },
+      };
+    }
+    case "save_question_id": {
+      return {
+        ...state,
+        questionId: action.id,
+      };
+    }
   }
 };

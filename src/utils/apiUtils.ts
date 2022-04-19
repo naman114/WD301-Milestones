@@ -2,6 +2,7 @@ import { PaginationParams } from "../types/common";
 import {
   createFormField,
   Form,
+  FormSubmission,
   updateForm,
   updateFormField,
 } from "../types/formTypes";
@@ -102,4 +103,8 @@ export const patchFormField = (
 
 export const patchForm = (formId: number, data: updateForm) => {
   return request(`/forms/${formId}/`, "PATCH", data);
+};
+
+export const createSubmission = (formId: number, data: FormSubmission) => {
+  return request(`/forms/${formId}/submission/`, "POST", data);
 };

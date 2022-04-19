@@ -36,6 +36,9 @@ export default function FormList() {
         }),
         searchString: "",
       };
+      forms.formData.sort((field1: FormData, field2: FormData) =>
+        field1.id < field2.id ? -1 : 1
+      );
       dispatch({ type: "populate_form_list", forms });
       console.log(data);
     } catch (error) {

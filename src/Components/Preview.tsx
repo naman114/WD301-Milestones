@@ -1,19 +1,30 @@
 import { Link } from "raviger";
-import React, { useReducer } from "react";
+import React, { useEffect, useReducer } from "react";
 import { getLocalForms } from "../utils/storageUtils";
-import { TextField } from "../types/formTypes";
+import {
+  formField,
+  FormSubmission,
+  receivedFormField,
+  TextField,
+  textFieldTypes,
+} from "../types/formTypes";
 import { FormResponse } from "../types/previewTypes";
 import Select from "react-select";
 import { reducer } from "../actions/previewActions";
+import { Pagination } from "../types/common";
+import { createSubmission, getFormFields } from "../utils/apiUtils";
 
 const initialState = (formId: number): FormResponse => {
-  const savedForms = getLocalForms();
-  const currentFormData = savedForms.filter((form) => form.id === formId)[0];
   return {
     id: Number(new Date()),
-    formData: currentFormData,
+    formData: {
+      id: formId,
+      title: "Untitled Form",
+      formFields: [],
+    },
     multiSelectValues: [],
-    questionId: currentFormData.formFields[0]?.id || -1,
+    // questionId: currentFormData.formFields[0]?.id || -1,
+    questionId: -1,
     isSubmitted: false,
   };
 };
@@ -37,6 +48,112 @@ export default function Preview(props: { formId: number }) {
   const [state, dispatch] = useReducer(reducer, null, () =>
     initialState(props.formId)
   );
+
+  const fetchFormFields = async () => {
+    try {
+      const data: Pagination<receivedFormField> = await getFormFields(
+        props.formId
+      );
+      convertResponsePayload(data.results);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchFormFields();
+  }, []);
+
+  const convertResponsePayload = (fields: receivedFormField[]) => {
+    const convertedFields: formField[] = fields.map((field) =>
+      conversionHelper(field)
+    );
+
+    // Sort the fields by id (in order of creation)
+    // Comparator asks: Should I swap them?
+    convertedFields.sort((field1: formField, field2: formField) =>
+      field1.id < field2.id ? -1 : 1
+    );
+    console.log(convertedFields);
+
+    dispatch({ type: "populate_form_fields", fields: convertedFields });
+
+    if (convertedFields.length > 0) {
+      dispatch({ type: "save_question_id", id: convertedFields[0].id });
+    }
+  };
+
+  const conversionHelper = (field: receivedFormField): formField => {
+    switch (field.kind) {
+      case "TEXT":
+        return {
+          id: field.id,
+          kind: "text",
+          label: field.label,
+          fieldType: field.meta?.textFieldType as textFieldTypes,
+          value: "",
+        };
+      case "DROPDOWN":
+        return {
+          id: field.id,
+          kind: "dropdown",
+          label: field.label,
+          options: field.options!,
+          value: "",
+        };
+      case "RADIO":
+        return {
+          id: field.id,
+          kind: "radio",
+          label: field.label,
+          options: field.options!,
+          value: "",
+        };
+      case "GENERIC": {
+        switch (field.meta?.kind) {
+          case "textarea":
+            return {
+              id: field.id,
+              kind: "textarea",
+              label: field.label,
+              value: "",
+            };
+          case "multiselect":
+            return {
+              id: field.id,
+              kind: "multiselect",
+              label: field.label,
+              options: field.options!,
+              value: "",
+            };
+        }
+      }
+    }
+
+    return {
+      id: field.id,
+      kind: "text",
+      label: field.label,
+      fieldType: field.meta?.textFieldType as textFieldTypes,
+      value: "",
+    };
+  };
+
+  const handleSubmit = async () => {
+    dispatch({ type: "save_submission_status", isSubmitted: true });
+
+    const payload: FormSubmission = {
+      answers: state.formData.formFields.map((field) => {
+        return {
+          form_field: field.id,
+          value: field.value,
+        };
+      }),
+    };
+
+    const data = await createSubmission(props.formId, payload);
+    console.log(data);
+  };
 
   const getQuestionLabel = () =>
     state.formData.formFields.find((field) => field.id === state.questionId)
@@ -229,8 +346,7 @@ export default function Preview(props: { formId: number }) {
         ) : (
           <button
             onClick={(e) => {
-              saveFormResponse(state);
-              dispatch({ type: "save_submission_status", isSubmitted: true });
+              handleSubmit();
             }}
             className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >

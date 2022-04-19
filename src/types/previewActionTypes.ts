@@ -1,4 +1,5 @@
 import { MultiValue } from "react-select";
+import { formField } from "./formTypes";
 
 export type SaveUserInputAction = {
   type: "save_user_input";
@@ -21,8 +22,20 @@ export type SaveFormSubmissionStatus = {
   isSubmitted: boolean;
 };
 
+export type PopulateFormFields = {
+  type: "populate_form_fields";
+  fields: formField[];
+};
+
+export type SaveQuestionId = {
+  type: "save_question_id";
+  id: number;
+};
+
 export type PreviewAction =
   | SaveUserInputAction
   | SaveMultiSelectValues
   | SaveCurrentQuestion
-  | SaveFormSubmissionStatus;
+  | SaveFormSubmissionStatus
+  | PopulateFormFields
+  | SaveQuestionId;

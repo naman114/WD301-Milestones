@@ -116,3 +116,10 @@ export type formField =
   | RadioField
   | TextAreaField
   | MultiSelectField;
+
+export type FormSubmission = {
+  answers: Array<{
+    form_field: number;
+    value: string;
+  }>;
+};
