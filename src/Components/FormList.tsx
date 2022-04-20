@@ -1,5 +1,5 @@
-import React, { useEffect, useReducer, useState } from "react";
-import { Link, useQueryParams } from "raviger";
+import React, { useContext, useEffect, useReducer, useState } from "react";
+import { Link, navigate, useQueryParams } from "raviger";
 import { reducer } from "../actions/formListActions";
 import { FormListState } from "../types/formListTypes";
 import Modal from "../common/Modal";
@@ -9,6 +9,7 @@ import { ReceivedForm, FormData } from "../types/formTypes";
 import { deleteForm } from "../utils/apiUtils";
 import Paginate from "../common/Paginate";
 import { Pagination } from "../types/common";
+import { userContext } from "../utils/formUtils";
 
 const initialState = (): FormListState => {
   const formListState: FormListState = {
@@ -19,28 +20,29 @@ const initialState = (): FormListState => {
 };
 
 export default function FormList() {
-  const [{ search, page }, setQueryParams] = useQueryParams();
+  const [{ search }, setSearchQP] = useQueryParams();
+  const [{ page }, setPageQP] = useQueryParams();
   const [state, dispatch] = useReducer(reducer, null, () => initialState());
   const [newForm, setNewForm] = useState(false);
-  const [pageNum, setPageNum] = useState(page ?? 1);
+  const [pageNum, setPageNum] = useState<number>(page ?? 1);
+  const [count, setCount] = useState(0);
+  const currentUser = useContext(userContext);
 
   useEffect(() => {
-    if (state.searchString === "" && pageNum === 1) return;
-
-    let timeout = setTimeout(() => {
-      setQueryParams({ search: state.searchString, page: pageNum });
-    }, 1000);
-    return () => {
-      clearTimeout(timeout);
-    };
+    setPageQP({ page: pageNum });
   }, [pageNum]);
+
+  useEffect(() => {
+    fetchForms();
+  }, [page]);
 
   const fetchForms = async () => {
     try {
       const data: Pagination<ReceivedForm> = await listForms({
-        offset: (page - 1) * 5,
+        offset: (pageNum - 1) * 5,
         limit: 5,
       });
+      setCount(data.count);
       const forms: FormListState = {
         formData: data.results.map((result) => {
           const form: FormData = {
@@ -56,7 +58,7 @@ export default function FormList() {
         field1.id < field2.id ? -1 : 1
       );
       dispatch({ type: "populate_form_list", forms });
-      console.log(data);
+      // console.log(data);
     } catch (error) {
       console.error(error);
     }
@@ -68,11 +70,18 @@ export default function FormList() {
 
   const handleDeleteForm = async (id: number) => {
     dispatch({ type: "remove_form", id });
+    setCount(count - 1);
     await deleteForm(id);
   };
   return (
     <div className="flex flex-col gap-5 divide-y-2 divide-dotted">
-      <form className="flex justify-center">
+      <form
+        className="flex justify-center"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setSearchQP({ search: state.searchString });
+        }}
+      >
         <input
           className="mr-4 w-full rounded-2xl bg-slate-100 p-3 focus:outline-none"
           type="text"
@@ -108,23 +117,30 @@ export default function FormList() {
                 </div>
 
                 <div className="flex space-x-2">
-                  <Link
+                  <button
+                    disabled={!currentUser || !currentUser?.username}
                     type="button"
-                    href={`/preview/${form.id}`}
-                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    onClick={(_) => {
+                      navigate(`/preview/${form.id}`);
+                    }}
+                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-slate-300"
                   >
                     Preview
-                  </Link>
-                  <Link
+                  </button>
+                  <button
+                    disabled={!currentUser || !currentUser?.username}
+                    onClick={(_) => {
+                      navigate(`/forms/${form.id}`);
+                    }}
                     type="button"
-                    href={`/forms/${form.id}`}
-                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-slate-300"
                   >
                     Edit
-                  </Link>
+                  </button>
                   <button
+                    disabled={!currentUser || !currentUser?.username}
                     type="button"
-                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-slate-300"
                     onClick={(_) => handleDeleteForm(form.id)}
                   >
                     Delete
@@ -134,10 +150,11 @@ export default function FormList() {
             </React.Fragment>
           ))}
       </div>
-      <Paginate />
+      <Paginate count={count} pageNum={pageNum} setPageCB={setPageNum} />
       <div className="flex space-x-2">
         <button
-          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          disabled={!currentUser || !currentUser?.username}
+          className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:bg-slate-300"
           onClick={(_) => {
             setNewForm(true);
           }}

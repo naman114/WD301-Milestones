@@ -1,9 +1,10 @@
 import { ActiveLink } from "raviger";
-import React from "react";
+import React, { useContext } from "react";
 import logo from "../logo.svg";
-import { User } from "../types/userTypes";
+import { userContext } from "../utils/formUtils";
 
-export default function Header(props: { currentUser: User; title: string }) {
+export default function Header(props: { title: string }) {
+  const currentUser = useContext(userContext);
   return (
     <div className="flex items-center gap-2">
       <img
@@ -16,7 +17,7 @@ export default function Header(props: { currentUser: User; title: string }) {
         {[
           { page: "Home", url: "/" },
           { page: "About", url: "/about" },
-          ...(props.currentUser?.username.length > 0
+          ...(currentUser?.username.length > 0
             ? [
                 {
                   page: "Logout",

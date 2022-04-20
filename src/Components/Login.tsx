@@ -12,6 +12,7 @@ export default function Login() {
       const data = await login(username, password);
       localStorage.setItem("token", data.token);
       navigate("/");
+      window.location.reload();
     } catch (error) {
       console.log(error);
     }
@@ -21,6 +22,7 @@ export default function Login() {
     const token = localStorage.getItem("token");
     if (token) {
       navigate("/forms");
+      window.location.reload();
     }
   }, []);
 
