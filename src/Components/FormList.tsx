@@ -5,9 +5,10 @@ import { FormListState } from "../types/formListTypes";
 import Modal from "../common/Modal";
 import CreateForm from "./CreateForm";
 import { listForms } from "../utils/apiUtils";
-import { Pagination } from "../types/common";
 import { ReceivedForm, FormData } from "../types/formTypes";
 import { deleteForm } from "../utils/apiUtils";
+import Paginate from "../common/Paginate";
+import { Pagination } from "../types/common";
 
 const initialState = (): FormListState => {
   const formListState: FormListState = {
@@ -18,13 +19,28 @@ const initialState = (): FormListState => {
 };
 
 export default function FormList() {
-  const [{ search }, setQueryParams] = useQueryParams();
+  const [{ search, page }, setQueryParams] = useQueryParams();
   const [state, dispatch] = useReducer(reducer, null, () => initialState());
   const [newForm, setNewForm] = useState(false);
+  const [pageNum, setPageNum] = useState(page ?? 1);
+
+  useEffect(() => {
+    if (state.searchString === "" && pageNum === 1) return;
+
+    let timeout = setTimeout(() => {
+      setQueryParams({ search: state.searchString, page: pageNum });
+    }, 1000);
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [pageNum]);
 
   const fetchForms = async () => {
     try {
-      const data: Pagination<ReceivedForm> = await listForms({});
+      const data: Pagination<ReceivedForm> = await listForms({
+        offset: (page - 1) * 5,
+        limit: 5,
+      });
       const forms: FormListState = {
         formData: data.results.map((result) => {
           const form: FormData = {
@@ -56,13 +72,7 @@ export default function FormList() {
   };
   return (
     <div className="flex flex-col gap-5 divide-y-2 divide-dotted">
-      <form
-        className="flex justify-center"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setQueryParams({ search: state.searchString });
-        }}
-      >
+      <form className="flex justify-center">
         <input
           className="mr-4 w-full rounded-2xl bg-slate-100 p-3 focus:outline-none"
           type="text"
@@ -124,6 +134,7 @@ export default function FormList() {
             </React.Fragment>
           ))}
       </div>
+      <Paginate />
       <div className="flex space-x-2">
         <button
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"

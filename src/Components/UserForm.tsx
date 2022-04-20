@@ -477,8 +477,12 @@ export default function UserForm(props: { formId: number }) {
           }}
           value={newFieldKind}
         >
-          {Object.entries(inputTypes).map((item) => {
-            return <option value={item[0]}>{item[1]}</option>;
+          {Object.entries(inputTypes).map((item, index) => {
+            return (
+              <React.Fragment key={index}>
+                <option value={item[0]}>{item[1]}</option>;
+              </React.Fragment>
+            );
           })}
         </select>
         <input
