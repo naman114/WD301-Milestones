@@ -6,8 +6,8 @@ export default function Home() {
   return (
     <div className="flex flex-col justify-center">
       <div className="flex">
-        <img src={logo} className="h-48" />
-        <div className="flex flex-1 items-center justify-center">
+        <img tabIndex={0} src={logo} className="h-48" alt="React Logo" />
+        <div tabIndex={0} className="flex flex-1 items-center justify-center">
           <p>Welcome to the home page</p>
         </div>
       </div>

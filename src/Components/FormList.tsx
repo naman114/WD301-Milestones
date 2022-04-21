@@ -102,13 +102,17 @@ export default function FormList() {
         />
       </form>
       <div className="space-y-3">
-        {state.formData
-          .filter((form) =>
-            form.title.toLowerCase().includes(search?.toLowerCase() || "")
-          )
-          .map((form) => (
-            <React.Fragment key={form.id}>
-              <div className="flex items-center justify-between rounded-xl border-2 px-4">
+        <ul>
+          {state.formData
+            .filter((form) =>
+              form.title.toLowerCase().includes(search?.toLowerCase() || "")
+            )
+            .map((form) => (
+              <li
+                key={form.id}
+                className="flex items-center justify-between rounded-xl border-2 px-4"
+                tabIndex={0}
+              >
                 <div className="flex flex-col py-1">
                   <p className=" text-lg ">{form.title}</p>
                   <p className=" text-slate-700 ">
@@ -146,9 +150,9 @@ export default function FormList() {
                     Delete
                   </button>
                 </div>
-              </div>
-            </React.Fragment>
-          ))}
+              </li>
+            ))}
+        </ul>
       </div>
       <Paginate count={count} pageNum={pageNum} setPageCB={setPageNum} />
       <div className="flex space-x-2">
