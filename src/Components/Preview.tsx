@@ -358,7 +358,7 @@ export default function Preview(props: { formId: number }) {
       </div>
     </div>
   ) : (
-    <div className="flex flex-col gap-4">
+    <div tabIndex={0} className="flex flex-col gap-4">
       Thanks for filling out the form!
       <br />
       Here's what we got:

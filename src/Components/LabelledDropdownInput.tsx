@@ -44,6 +44,7 @@ export default function LabelledDropdownInput(props: {
         </p>
         <input
           type="text"
+          aria-label="Dropdown Label"
           value={label}
           onChange={(e) => {
             setLabel(e.target.value);
@@ -52,6 +53,7 @@ export default function LabelledDropdownInput(props: {
         />
         <input
           type="text"
+          aria-label="Dropdown Options"
           value={options}
           onChange={(e) => {
             setOptions(parseOptions(e.target.value));

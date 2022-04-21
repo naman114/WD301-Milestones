@@ -29,6 +29,7 @@ export default function LabelledTextAreaInput(props: {
         </p>
         <input
           type="text"
+          aria-label="Textarea Label"
           value={label}
           onChange={(e) => {
             setLabel(e.target.value);
