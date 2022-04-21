@@ -18,13 +18,13 @@ export default function AppRouter() {
     "/about": () => <About />,
     "/forms": () => <FormList />,
     "/forms/:id": ({ id }: { id: string }) =>
-      !currentUser || !currentUser?.username ? (
+      currentUser.status === "NOT_AUTHENTICATED" ? (
         <Login />
       ) : (
         <UserForm formId={Number(id)} />
       ),
     "/preview/:id": ({ id }: { id: string }) =>
-      !currentUser || !currentUser?.username ? (
+      currentUser.status === "NOT_AUTHENTICATED" ? (
         <Login />
       ) : (
         <Preview formId={Number(id)} />

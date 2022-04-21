@@ -1,10 +1,12 @@
 import { navigate } from "raviger";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { login } from "../utils/apiUtils";
+import { userContext } from "../utils/formUtils";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const currentUser = useContext(userContext);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -19,8 +21,7 @@ export default function Login() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    if (currentUser.status === "AUTHENTICATED") {
       navigate("/forms");
       window.location.reload();
     }

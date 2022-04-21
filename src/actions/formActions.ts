@@ -1,7 +1,6 @@
 import { parseOptions } from "../utils/formUtils";
 import { FormAction } from "../types/formActionTypes";
 import { FormData, formField, textFieldTypes } from "../types/formTypes";
-import { initialFormFields } from "../Components/UserForm";
 
 export const reducer = (state: FormData, action: FormAction) => {
   switch (action.type) {

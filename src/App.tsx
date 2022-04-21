@@ -6,12 +6,25 @@ import { userContext } from "./utils/formUtils";
 
 const getCurrentUser = async (setCurrentUser: (currentUser: User) => void) => {
   const currentUser = await me();
+  const { username, name, url } = currentUser;
   // console.log(currentUser);
-  setCurrentUser(currentUser);
+  const user: User = {
+    username,
+    name,
+    url,
+    status: username === "" ? "NOT_AUTHENTICATED" : "AUTHENTICATED",
+  };
+  setCurrentUser(user);
 };
 
 function App() {
-  const [currentUser, setCurrentUser] = useState<User>(null);
+  const [currentUser, setCurrentUser] = useState<User>({
+    username: "",
+    name: "",
+    url: "",
+    status: "NOT_AUTHENTICATED",
+  });
+
   useEffect(() => {
     try {
       getCurrentUser(setCurrentUser);

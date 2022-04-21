@@ -1,6 +1,5 @@
 // Parent Wrapper Component
 import React from "react";
-import { User } from "../types/userTypes";
 import Header from "./Header";
 
 export default function AppContainer(props: { children: React.ReactNode }) {

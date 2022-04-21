@@ -10,6 +10,7 @@ import { deleteForm } from "../utils/apiUtils";
 import Paginate from "../common/Paginate";
 import { Pagination } from "../types/common";
 import { userContext } from "../utils/formUtils";
+import ShareForm from "./ShareForm";
 
 const initialState = (): FormListState => {
   const formListState: FormListState = {
@@ -149,6 +150,7 @@ export default function FormList() {
                   >
                     Delete
                   </button>
+                  <ShareForm formID={form.id} />
                 </div>
               </li>
             ))}
