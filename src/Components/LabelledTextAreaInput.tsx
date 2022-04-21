@@ -19,7 +19,7 @@ export default function LabelledTextAreaInput(props: {
     return () => {
       clearTimeout(timeout);
     };
-  }, [label]);
+  }, [label]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

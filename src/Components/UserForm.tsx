@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useReducer } from "react";
 import LabelledInput from "./LabelledInput";
-import { saveLocalForms, getLocalForms } from "../utils/storageUtils";
 import { parseOptions } from "../utils/formUtils";
-import { Link, navigate } from "raviger";
+import { Link } from "raviger";
 import {
   FormData,
   formField,
@@ -12,7 +11,6 @@ import {
   Errors,
   createFormField,
   receivedFormField,
-  updateFormField,
   receivedForm,
 } from "../types/formTypes";
 import LabelledDropdownInput from "./LabelledDropdownInput";
@@ -80,15 +78,6 @@ const initialState = (formId: number): FormData => {
   return newForm;
 };
 
-const saveCurrentForm = (currentForm: FormData) => {
-  const savedForms = getLocalForms();
-  const updatedForms = savedForms.map((form) => {
-    if (form.id === currentForm.id) return currentForm;
-    return form;
-  });
-  saveLocalForms(updatedForms);
-};
-
 export default function UserForm(props: { formId: number }) {
   const [state, dispatch] = useReducer(reducer, null, () =>
     initialState(props.formId)
@@ -99,10 +88,6 @@ export default function UserForm(props: { formId: number }) {
   const [newFieldType, setNewFieldType] = useState("text" as textFieldTypes);
   const titleRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<Errors<formField>>({});
-  // console.log(props.formId);
-  // useEffect(() => {
-  //   state.id !== props.formId && navigate(`/forms/${state.id}`);
-  // }, [state.id, props.formId]);
 
   const fetchTitle = async () => {
     const data: receivedForm = await getForm(props.formId);
@@ -117,7 +102,7 @@ export default function UserForm(props: { formId: number }) {
     return () => {
       document.title = "React App";
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     let timeout = setTimeout(() => {
@@ -126,7 +111,7 @@ export default function UserForm(props: { formId: number }) {
     return () => {
       clearTimeout(timeout);
     };
-  }, [state.title]);
+  }, [state.title]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchFormFields = async () => {
     try {
@@ -142,7 +127,7 @@ export default function UserForm(props: { formId: number }) {
 
   useEffect(() => {
     fetchFormFields();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = async () => {
     dispatch({
@@ -470,6 +455,7 @@ export default function UserForm(props: { formId: number }) {
                 </React.Fragment>
               );
           }
+          return <div></div>;
         })}
       </div>
       <div className="flex gap-2">
@@ -507,6 +493,7 @@ export default function UserForm(props: { formId: number }) {
           Add Field
         </button>
       </div>
+      {errors.label && showNotification("danger", errors.label)}
       <div className="flex space-x-2">
         <Link
           href={`/preview/${props.formId}`}

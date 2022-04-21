@@ -23,7 +23,7 @@ export default function LabelledInput(props: {
     return () => {
       clearTimeout(timeout);
     };
-  }, [label]);
+  }, [label]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (fieldType === props.fieldType) return;
@@ -34,7 +34,7 @@ export default function LabelledInput(props: {
     return () => {
       clearTimeout(timeout);
     };
-  }, [fieldType]);
+  }, [fieldType]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

@@ -29,21 +29,6 @@ const initialState = (formId: number): FormResponse => {
   };
 };
 
-const getFormResponses = (): FormResponse[] => {
-  const savedResponsesJSON = localStorage.getItem("savedResponses");
-  return savedResponsesJSON ? JSON.parse(savedResponsesJSON) : [];
-};
-
-const saveFormResponses = (responses: FormResponse[]) => {
-  localStorage.setItem("savedResponses", JSON.stringify(responses));
-};
-
-const saveFormResponse = (response: FormResponse) => {
-  let savedResponses = getFormResponses();
-  savedResponses = [...savedResponses, response];
-  saveFormResponses(savedResponses);
-};
-
 export default function Preview(props: { formId: number }) {
   const [state, dispatch] = useReducer(reducer, null, () =>
     initialState(props.formId)
@@ -63,7 +48,7 @@ export default function Preview(props: { formId: number }) {
 
   useEffect(() => {
     fetchFormFields();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const convertResponsePayload = (fields: receivedFormField[]) => {
     const convertedFields: formField[] = fields.map((field) =>

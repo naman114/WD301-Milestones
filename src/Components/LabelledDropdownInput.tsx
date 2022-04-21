@@ -23,7 +23,7 @@ export default function LabelledDropdownInput(props: {
     return () => {
       clearTimeout(timeout);
     };
-  }, [label]);
+  }, [label]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (options === props.options) return;
@@ -34,7 +34,7 @@ export default function LabelledDropdownInput(props: {
     return () => {
       clearTimeout(timeout);
     };
-  }, [options]);
+  }, [options]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>

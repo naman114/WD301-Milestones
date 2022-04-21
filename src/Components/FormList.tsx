@@ -32,11 +32,11 @@ export default function FormList() {
 
   useEffect(() => {
     setPageQP({ page: pageNum });
-  }, [pageNum]);
+  }, [pageNum]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     fetchForms();
-  }, [page]);
+  }, [page]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchForms = async () => {
     try {
@@ -69,7 +69,7 @@ export default function FormList() {
 
   useEffect(() => {
     fetchForms();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDeleteForm = async (id: number) => {
     dispatch({ type: "remove_form", id });

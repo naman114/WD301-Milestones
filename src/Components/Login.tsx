@@ -25,7 +25,7 @@ export default function Login() {
       navigate("/forms");
       window.location.reload();
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div className="w-full max-w-lg divide-y divide-gray-200">
