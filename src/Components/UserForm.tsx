@@ -27,6 +27,7 @@ import {
   patchForm,
   patchFormField,
 } from "../utils/apiUtils";
+import { showNotification } from "../utils/notifUtils";
 
 export const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "Name", fieldType: "text", value: "" },
@@ -135,6 +136,7 @@ export default function UserForm(props: { formId: number }) {
       convertResponsePayload(data.results);
     } catch (error) {
       console.error(error);
+      showNotification("danger", "Error occured in fetching form");
     }
   };
 
@@ -171,9 +173,10 @@ export default function UserForm(props: { formId: number }) {
       try {
         const data = await createField(props.formId, fieldRequestPayload);
         console.log(data);
-        console.log("hello");
+        // console.log("hello");
       } catch (error) {
         console.log(error);
+        showNotification("danger", "Error occured in adding field");
       }
     }
   };

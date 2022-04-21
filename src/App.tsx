@@ -3,6 +3,8 @@ import AppRouter from "./router/AppRouter";
 import { User } from "./types/userTypes";
 import { me } from "./utils/apiUtils";
 import { userContext } from "./utils/formUtils";
+import { ReactNotifications } from "react-notifications-component";
+import "react-notifications-component/dist/theme.css";
 
 const getCurrentUser = async (setCurrentUser: (currentUser: User) => void) => {
   const currentUser = await me();
@@ -36,6 +38,7 @@ function App() {
 
   return (
     <userContext.Provider value={currentUser}>
+      <ReactNotifications />
       <AppRouter />
     </userContext.Provider>
   );

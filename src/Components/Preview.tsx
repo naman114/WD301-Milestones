@@ -12,6 +12,7 @@ import Select from "react-select";
 import { reducer } from "../actions/previewActions";
 import { Pagination } from "../types/common";
 import { createSubmission, getFormFields } from "../utils/apiUtils";
+import { showNotification } from "../utils/notifUtils";
 
 const initialState = (formId: number): FormResponse => {
   return {
@@ -56,6 +57,7 @@ export default function Preview(props: { formId: number }) {
       convertResponsePayload(data.results);
     } catch (error) {
       console.error(error);
+      showNotification("danger", "Error occured in fetching form");
     }
   };
 
@@ -151,6 +153,7 @@ export default function Preview(props: { formId: number }) {
     };
 
     const data = await createSubmission(props.formId, payload);
+    showNotification("success", "Form response was saved");
     console.log(data);
   };
 

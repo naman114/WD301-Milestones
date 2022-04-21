@@ -11,6 +11,7 @@ import Paginate from "../common/Paginate";
 import { Pagination } from "../types/common";
 import { userContext } from "../utils/formUtils";
 import ShareForm from "./ShareForm";
+import { showNotification } from "../utils/notifUtils";
 
 const initialState = (): FormListState => {
   const formListState: FormListState = {
@@ -62,6 +63,7 @@ export default function FormList() {
       // console.log(data);
     } catch (error) {
       console.error(error);
+      showNotification("danger", "Error occured in fetching forms");
     }
   };
 
@@ -73,6 +75,7 @@ export default function FormList() {
     dispatch({ type: "remove_form", id });
     setCount(count - 1);
     await deleteForm(id);
+    showNotification("success", "Form deleted successfully");
   };
   return (
     <div className="flex flex-col gap-5 divide-y-2 divide-dotted">

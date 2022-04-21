@@ -2,6 +2,7 @@ import { navigate } from "raviger";
 import React, { useState } from "react";
 import { Errors, Form, validateForm } from "../types/formTypes";
 import { createForm } from "../utils/apiUtils";
+import { showNotification } from "../utils/notifUtils";
 
 export default function CreateForm() {
   const [form, setForm] = useState<Form>({
@@ -30,8 +31,10 @@ export default function CreateForm() {
       try {
         const data = await createForm(form);
         navigate(`/forms/${data.id}`);
+        showNotification("success", "Form created successfully");
       } catch (error) {
         console.log(error);
+        showNotification("danger", "Something went wrong");
       }
     }
   };
