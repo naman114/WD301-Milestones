@@ -22,7 +22,7 @@ export default function Login() {
 
   useEffect(() => {
     if (currentUser.status === "AUTHENTICATED") {
-      navigate("/forms");
+      navigate("/");
       window.location.reload();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps

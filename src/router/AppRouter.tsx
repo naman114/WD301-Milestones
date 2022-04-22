@@ -1,19 +1,21 @@
-import { useRoutes } from "raviger";
-import About from "../Components/About";
-import AppContainer from "../Components/AppContainer";
-import FormList from "../Components/FormList";
-import Home from "../Components/Home";
-import UserForm from "../Components/UserForm";
-import Preview from "../Components/Preview";
-import Login from "../Components/Login";
+import React, { lazy, Suspense } from "react";
 import { useContext } from "react";
+import { useRoutes } from "raviger";
+import AppContainer from "../Components/AppContainer";
 import { userContext } from "../utils/formUtils";
+import Loading from "../common/Loading";
+
+const Login = lazy(() => import("../Components/Login"));
+const About = lazy(() => import("../Components/About"));
+const FormList = lazy(() => import("../Components/FormList"));
+const UserForm = lazy(() => import("../Components/UserForm"));
+const Preview = lazy(() => import("../Components/Preview"));
 
 export default function AppRouter() {
   const currentUser = useContext(userContext);
 
   const routes = {
-    "/": () => <Home />,
+    "/": () => <FormList />,
     "/login": () => <Login />,
     "/about": () => <About />,
     "/forms": () => <FormList />,
@@ -32,5 +34,9 @@ export default function AppRouter() {
   };
 
   let routeResult = useRoutes(routes);
-  return <AppContainer>{routeResult}</AppContainer>;
+  return (
+    <AppContainer>
+      <Suspense fallback={<Loading />}>{routeResult}</Suspense>
+    </AppContainer>
+  );
 }

@@ -1,5 +1,5 @@
 import { Link } from "raviger";
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import {
   formField,
   FormSubmission,
@@ -13,6 +13,7 @@ import { reducer } from "../actions/previewActions";
 import { Pagination } from "../types/common";
 import { createSubmission, getFormFields } from "../utils/apiUtils";
 import { showNotification } from "../utils/notifUtils";
+import Loading from "../common/Loading";
 
 const initialState = (formId: number): FormResponse => {
   return {
@@ -33,13 +34,16 @@ export default function Preview(props: { formId: number }) {
   const [state, dispatch] = useReducer(reducer, null, () =>
     initialState(props.formId)
   );
+  const [loading, setLoading] = useState(true);
 
   const fetchFormFields = async () => {
     try {
+      setLoading(true);
       const data: Pagination<receivedFormField> = await getFormFields(
         props.formId
       );
       convertResponsePayload(data.results);
+      setLoading(false);
     } catch (error) {
       console.error(error);
       showNotification("danger", "Error occured in fetching form");
@@ -296,14 +300,16 @@ export default function Preview(props: { formId: number }) {
     }
   };
 
-  return state.questionId === -1 ? (
+  return loading ? (
+    <Loading />
+  ) : state.questionId === -1 ? (
     <div>
       <p tabIndex={0} className="my-2">
         This form is empty!
       </p>
       <Link
         className="group relative my-4 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        href="/forms/"
+        href="/"
       >
         View More Forms
       </Link>
@@ -360,7 +366,7 @@ export default function Preview(props: { formId: number }) {
       ))}
       <Link
         className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        href="/forms/"
+        href="/"
       >
         View More Forms
       </Link>

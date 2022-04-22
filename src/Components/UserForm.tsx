@@ -26,6 +26,7 @@ import {
   patchFormField,
 } from "../utils/apiUtils";
 import { showNotification } from "../utils/notifUtils";
+import Loading from "../common/Loading";
 
 export const initialFormFields: formField[] = [
   { kind: "text", id: 1, label: "Name", fieldType: "text", value: "" },
@@ -88,6 +89,7 @@ export default function UserForm(props: { formId: number }) {
   const [newFieldType, setNewFieldType] = useState("text" as textFieldTypes);
   const titleRef = useRef<HTMLInputElement>(null);
   const [errors, setErrors] = useState<Errors<formField>>({});
+  const [loading, setLoading] = useState(true);
 
   const fetchTitle = async () => {
     const data: receivedForm = await getForm(props.formId);
@@ -115,10 +117,12 @@ export default function UserForm(props: { formId: number }) {
 
   const fetchFormFields = async () => {
     try {
+      setLoading(true);
       const data: Pagination<receivedFormField> = await getFormFields(
         props.formId
       );
       convertResponsePayload(data.results);
+      setLoading(false);
     } catch (error) {
       console.error(error);
       showNotification("danger", "Error occured in fetching form");
@@ -326,7 +330,9 @@ export default function UserForm(props: { formId: number }) {
     }
   };
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <div className="flex flex-col gap-4 divide-y-2 divide-dotted">
       <input
         type="text"
@@ -502,7 +508,7 @@ export default function UserForm(props: { formId: number }) {
           Preview
         </Link>
         <Link
-          href="/forms/"
+          href="/"
           className="group relative my-2 flex justify-center rounded-lg border border-transparent bg-blue-500 py-2 px-4 text-sm font-extrabold text-white hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           Close Form

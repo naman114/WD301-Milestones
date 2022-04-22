@@ -15,7 +15,11 @@ export default function ShareForm(props: { formID: number }) {
   return (
     <div className="flex">
       <CopyToClipboard
-        text={`localhost:3000/forms/${props.formID}`}
+        text={
+          process.env.REACT_APP_HOST_URL
+            ? `${process.env.REACT_APP_HOST_URL}/forms/${props.formID}`
+            : `localhost:3000/forms/${props.formID}`
+        }
         onCopy={onCopy}
       >
         <button
