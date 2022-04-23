@@ -1,10 +1,15 @@
 import { navigate } from "raviger";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import Loading from "../common/Loading";
 import { login } from "../utils/apiUtils";
+import { userContext } from "../utils/formUtils";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+
+  const currentUser = useContext(userContext);
+  const [loading, setLoading] = useState(true);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -19,14 +24,18 @@ export default function Login() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
+    setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    if (currentUser && currentUser?.username) {
       navigate("/forms");
       window.location.reload();
     }
   }, []);
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <div className="w-full max-w-lg divide-y divide-gray-200">
       <h1 className="text-2xl-my-2 text-gray-700">Login</h1>
       <form onSubmit={handleSubmit} className="py-4">
